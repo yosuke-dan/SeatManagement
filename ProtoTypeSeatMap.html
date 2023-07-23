@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Vue3 Drag and Drop</title>
+    <script src="https://unpkg.com/vue@next"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <style>
+        .box {
+            height: 100px;
+            width: 100px;
+            border: 1px solid black;
+            margin-right: 5px;
+            margin-left: 5px;
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 100px;
+        }
+
+        .seat {
+            width: 50px;
+            /* 座席の幅 */
+            height: 50px;
+            /* 座席の高さ */
+            background-color: #ccc;
+            /* 座席の背景色 */
+            margin: 5px;
+            /* 座席間のマージン */
+            border: 1px solid #000;
+            /* 座席の境界線 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tableLarge {
+            width: 70px;
+            /* 座席の幅 */
+            height: 278px;
+            /* 座席の高さ */
+            background-color: #ccc;
+            /* 座席の背景色 */
+            border: 1px solid #000;
+            /* 座席の境界線 */
+        }
+
+        .tableSmall {
+            width: 70px;
+            /* 座席の幅 */
+            height: 164px;
+            /* 座席の高さ */
+            background-color: #ccc;
+            /* 座席の背景色 */
+            border: 1px solid #000;
+            /* 座席の境界線 */
+        }
+
+        .seat-island {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-right: 15px;
+            margin-left: 15px;
+        }
+
+        .section-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <h1 class="bg-secondary text-white display-3 px-2">Seat Management
+        </h1>
+        <h2 class="be-secondary">Chart</h2>
+        <div class="section-row">
+            <div class="section">
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" id="seat00-0" @drop="drop2" @dragover.prevent @dragleave.prevent>{{ seats2['seat00-0'] }}</div>
+                        <div class="seat" id="seat00-1" @drop="drop2" @dragover.prevent @dragleave.prevent>{{ seats2['seat00-1'] }}</div>
+                        <div class="seat" id="seat00-2" @drop="drop2" @dragover.prevent @dragleave.prevent>{{ seats2['seat00-2'] }}</div>
+                        <div class="seat" id="seat00-3" @drop="drop2" @dragover.prevent @dragleave.prevent>{{ seats2['seat00-3'] }}</div>
+                        <div class="seat" id="seat00-4" @drop="drop2" @dragover.prevent @dragleave.prevent>{{ seats2['seat00-4'] }}</div>
+                    </div>
+                    <div class="tableLarge"></div>
+                    <div class="seat-row">
+                        <div class="seat" id="seat00-5"></div>
+                        <div class="seat" id="seat00-6"></div>
+                        <div class="seat" id="seat00-7"></div>
+                        <div class="seat" id="seat00-8"></div>
+                        <div class="seat" id="seat00-9"></div>
+                    </div>
+                </div>
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" id="seat01-0"></div>
+                        <div class="seat" id="seat01-1"></div>
+                        <div class="seat" id="seat01-2"></div>
+                    </div>
+                    <div class="tableSmall"></div>
+                    <div class="seat-row">
+                        <div class="seat" id="seat01-3"></div>
+                        <div class="seat" id="seat01-4"></div>
+                        <div class="seat" id="seat01-5"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" id="seat02-0"></div>
+                        <div class="seat" id="seat02-1"></div>
+                        <div class="seat" id="seat02-2"></div>
+                        <div class="seat" id="seat02-3"></div>
+                        <div class="seat" id="seat02-4"></div>
+                    </div>
+                    <div class="tableLarge"></div>
+                    <div class="seat-row">
+                        <div class="seat" id="seat02-5"></div>
+                        <div class="seat" id="seat02-6"></div>
+                        <div class="seat" id="seat02-7"></div>
+                        <div class="seat" id="seat02-8"></div>
+                        <div class="seat" id="seat02-9"></div>
+                    </div>
+                </div>
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" id="seat03-0"></div>
+                        <div class="seat" id="seat03-1"></div>
+                        <div class="seat" id="seat03-2"></div>
+                    </div>
+                    <div class="tableSmall"></div>
+                    <div class="seat-row">
+                        <div class="seat" id="seat03-3"></div>
+                        <div class="seat" id="seat03-4"></div>
+                        <div class="seat" id="seat03-5"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" id="seat04-0"></div>
+                        <div class="seat" id="seat04-1"></div>
+                        <div class="seat" id="seat04-2"></div>
+                        <div class="seat" id="seat04-3"></div>
+                        <div class="seat" id="seat04-4"></div>
+                    </div>
+                    <div class="tableLarge"></div>
+                    <div class="seat-row">
+                        <div class="seat" id="seat04-5"></div>
+                        <div class="seat" id="seat04-6"></div>
+                        <div class="seat" id="seat04-7"></div>
+                        <div class="seat" id="seat04-8"></div>
+                        <div class="seat" id="seat04-9"></div>
+                    </div>
+                </div>
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" id="seat05-0"></div>
+                        <div class="seat" id="seat05-1"></div>
+                        <div class="seat" id="seat05-2"></div>
+                    </div>
+                    <div class="tableSmall"></div>
+                    <div class="seat-row">
+                        <div class="seat" id="seat05-3"></div>
+                        <div class="seat" id="seat05-4"></div>
+                        <div class="seat" id="seat05-5"></div>
+                    </div>
+                </div>
+            </div>
+            <div v-for="(seat, index) in seats" :id="'seat' + index" class="seat" @drop="drop($event, index)"
+                @dragover="allowDrop">{{ seat }}</div>
+            
+        </div>
+
+        <h2>Emplyoees</h2>
+        <div class="section-row">
+            <div v-for="item in items">
+                <div class="box">{{ item.Name }}</div>
+            </div>
+            <!-- box elements -->
+            <div v-for="item in items" class="box" draggable="true" @dragstart="dragStart($event, item)">{{ item.Name }}
+            </div>
+
+
+        </div>
+    </div>
+
+    <script>
+        // const appdata = {
+        //     data() {
+        //        return{
+        //         text: 'a',
+        //         text2: 'b',
+        //         items:{
+        //             Yosuke:{Name:'Yosuke',Age: 28},
+        //             Kana:{Name:'Kana',Age:28},
+        //             Zeni:{Name:'Zeni',Age:18},
+        //         }
+        //        }     
+        //     }};
+
+        // let app = Vue.createApp(appdata)
+        // app.mount('#app')
+
+
+        const appdata = {
+            data() {
+                return {
+                    items: {
+                        Yosuke: { Name: 'Yosuke', Age: 28 },
+                        Kana: { Name: 'Kana', Age: 28 },
+                        Zeni: { Name: 'Zeni', Age: 18 },
+                    },
+                    seats: new Array(1).fill("") // seatの数に応じて変更してください,
+                    ,
+                    seats2: {
+                    'seat00-0': '',
+                    'seat00-1': '',
+                    'seat00-2': '',
+                    'seat00-3': '',
+                    'seat00-4': '',
+                    // Add more seats as needed
+                    },
+                }
+            },
+            methods: {
+                dragStart(event, item) {
+                    event.dataTransfer.setData("text/plain", item.Name);
+                    //debug
+                    console.log(item.Name);
+                    console.log(event.dataTransfer.getData("text/plain"));
+                },
+                drop(event, index) {
+                    let data = event.dataTransfer.getData("text/plain");
+                    //this.$set(this.seats, index, data);
+                    this.seats[index] = data;
+                    event.preventDefault();
+                },
+                drop2(event) {
+                console.log(event.target.id)
+                const id = event.target.id;
+                this.seats2[id] = event.dataTransfer.getData("text/plain");
+                this.draggedItem = null;
+                },
+                allowDrop(event) {
+                    event.preventDefault();
+                }
+            }
+        };
+
+        let app = Vue.createApp(appdata)
+        app.mount('#app')
+    </script>
+</body>
+
+</html>
