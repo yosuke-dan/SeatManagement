@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>座席表</title>
+    <script src="https://unpkg.com/vue@next"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <style>
+        .seat-island {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .table-large {
+            width: 70px;
+            height: 278px;
+            background-color: #f5ffff;
+            border: 1px solid #000;
+        }
+
+        .table-small {
+            width: 70px;
+            height: 164px;
+            background-color: #f5ffff;
+            border: 1px solid #000;
+        }
+
+        .seat {
+            width: 50px;
+            height: 50px;
+            background-color: #eee;
+            margin: 5px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .active {
+            background-color: #ffaa00;
+        }
+
+        .box {
+            height: 100px;
+            width: 100px;
+            border: 1px solid black;
+            margin-right: 5px;
+            margin-left: 5px;
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 100px;
+            cursor: grab;
+        }
+        .box.seated {
+            background-color: #999;
+            cursor: no-drop;
+        }
+
+        .section {
+            margin-right: 15px;
+            margin-left: 15px;
+        }
+
+        .section-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <h1 class="bg-secondary text-white display-3 px-2" style="line-height: 1.4;">Seat Management</h1>
+        
+        <h2 class="be-secondary">Chart</h2>
+        <div class="section-row">
+            <div class="section"
+                v-for="row in layout.rows"
+                :key="row"
+            >
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat"
+                            v-for="s in layout['large-seats']"
+                            :key="s"
+                            :id="`${row}-seat-l-${s}`"
+                            @drop="drop"
+                            @dragover.prevent @dragleave.prevent
+                            @contextmenu="leave"
+                            @contextmenu.prevent
+                        ></div>
+                    </div>
+                    <div class="table-large"></div>
+                    <div class="seat-row">
+                        <div class="seat"
+                            v-for="s in layout['large-seats']"
+                            :key="s"
+                            :id="`seat-r-${s}`"
+                            @drop="drop"
+                            @dragover.prevent @dragleave.prevent
+                            @contextmenu="leave"
+                            @contextmenu.prevent
+                        ></div>
+                    </div>
+                </div>
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat"
+                            v-for="s in layout['small-seats']"
+                            :key="s"
+                            :id="`seat-l-${s}`"
+                            @drop="drop"
+                            @dragover.prevent @dragleave.prevent
+                            @contextmenu="leave"
+                            @contextmenu.prevent
+                        ></div>
+                    </div>
+                    <div class="table-small"></div>
+                    <div class="seat-row">
+                        <div class="seat"
+                            v-for="s in layout['small-seats']"
+                            :key="s"
+                            :id="`seat-r-${s}`"
+                            @drop="drop"
+                            @dragover.prevent @dragleave.prevent
+                            @contextmenu="leave"
+                            @contextmenu.prevent
+                        ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>Employees</h2>
+        <div class="section-row">
+            <div v-for="(item, key) in items"
+                class="box"
+                :class="{ seated: item.seated, }"
+                :draggable="!item.seated"
+                @dragstart="dragStart($event, key)"
+            >{{ item.name }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const appdata = {
+            data() {
+                return {
+                    layout: {
+                        'rows': 8, // 島の数
+                        'small-seats': 3, // 小テーブルの座席数（片側）
+                        'large-seats': 5, // 大テーブルの座席数（片側）
+                    },
+                    items: {
+                        Sawada: { name: "澤田", seated: false, seatId: 'seat-l-1' },
+                        Katoken: { name: "加藤", seated: false, seatId: 'seat-l-2'},
+                        Yamashita: { name: "山下", seated: false, },
+                        Sogabe: { name: "曽我部", seated: false, },
+                        Miyake: { name: "三宅", seated: false, },
+                        Sato: { name: "佐藤", seated: false, },
+                        Kasami: { name: "笠見", seated: false, },
+                        Ikeda  : { name: "いけだちゃん", seated: false, },
+                    },
+                };
+            },
+            methods: {
+                dragStart(event, key) {
+                    event.dataTransfer.setData("text/plain", key);
+                    console.log(event.dataTransfer.getData("text/plain"));
+                },
+                drop(event) {
+                    console.log(event.target);
+                    const key = event.dataTransfer.getData("text/plain");
+                    
+                    event.target.innerHTML = this.items[key].name;
+                    event.target.setAttribute("user", key);
+                    this.items[key].seated = true; // 着席状態
+                    event.target.classList.add("active"); // 席も使用状態
+                    
+                    this.draggedItem = null;
+                },
+                allowDrop(event) {
+                    event.preventDefault();
+                },
+                leave(event) {
+                    console.log(event.target);
+                    const key = event.target.getAttribute("user");
+                    
+                    event.target.innerHTML = "";
+                    event.target.removeAttribute("user");
+                    this.items[key].seated = false; // 着席状態
+                    event.target.classList.remove("active"); // 席も使用状態
+                },
+            },
+            mounted() {
+            // ページが読み込まれたときに初期の座席割り当てを行う
+            for (let key in this.items) {
+                let item = this.items[key];
+                if (item.seatId) {
+                    let seatElement = document.getElementById(item.seatId);
+                    if (seatElement) {
+                        seatElement.innerHTML = item.name;
+                        seatElement.setAttribute("user", key);
+                        item.seated = true; // 着席状態
+                        seatElement.classList.add("active"); // 席も使用状態
+                    }
+                }
+            }
+        }
+        };
+
+
+        let app = Vue.createApp(appdata)
+        app.mount('#app')
+    </script>
+</body>
+
+</html>
