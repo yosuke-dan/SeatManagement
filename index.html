@@ -3,6 +3,7 @@
 
 <head>
     <title>座席表</title>
+    <meta http-equiv="content-type" charset="utf-8">
     <script src="https://unpkg.com/vue@next"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -163,8 +164,8 @@
                         'large-seats': 5, // 大テーブルの座席数（片側）
                     },
                     items: {
-                        Sawada: { name: "澤田", seated: false, seatId: 'seat-l-1' },
-                        Katoken: { name: "加藤", seated: false, seatId: 'seat-l-2'},
+                        Sawada: { name: "澤田", seated: true, seatId: 'seat-l-1' },
+                        Katoken: { name: "加藤", seated: true, seatId: 'seat-l-2'},
                         Yamashita: { name: "山下", seated: false, },
                         Sogabe: { name: "曽我部", seated: false, },
                         Miyake: { name: "三宅", seated: false, },
