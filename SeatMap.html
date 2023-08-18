@@ -5,6 +5,7 @@
     <title>座席表</title>
     <meta http-equiv="content-type" charset="utf-8">
     <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
@@ -152,6 +153,9 @@
             >{{ item.name }}
             </div>
         </div>
+
+        <h4 style="padding-top: 20px;">ご意見・ご感想・ご要望・ソースレビューは下記リンクよりお願いいたします。</h4>
+        <a href="https://forms.gle/Wm25VHszoaMmLXKS7" target="_blank">ここをクリック</a>
     </div>
 
     <script>
@@ -164,17 +168,20 @@
                         'large-seats': 5, // 大テーブルの座席数（片側）
                     },
                     items: {
+                        Chanoki: { name: "茶之木", seated: true, seatId: 'seat-l-3' },
                         Sawada: { name: "澤田", seated: true, seatId: 'seat-l-1' },
                         Katoken: { name: "加藤", seated: true, seatId: 'seat-l-2'},
+                        Kai: { name: "甲斐", seated: false, },
+                        Shito: { name: "志藤", seated: false, },
+                        Kasami: { name: "笠見", seated: false, },
+                        Umeda  : { name: "梅田", seated: false, },
+                        Ikeda : { name: "池田", seated: false, },
                         Yamashita: { name: "山下", seated: false, },
                         Sogabe: { name: "曽我部", seated: false, },
                         Miyake: { name: "三宅", seated: false, },
                         Sato: { name: "佐藤", seated: false, },
-                        Kasami: { name: "笠見", seated: false, },
-                        Ikeda  : { name: "いけだちゃん", seated: false, },
-                        Umeda  : { name: "梅ちゃん", seated: false, },
-                        Masuda : { name: "増田ぼうや", seated: false, },
-                        Ito : { name: "new伊東", seated: false, },
+                        Ikeda  : { name: "浅田", seated: false, },
+                        Masuda : { name: "宮川", seated: false, },
                     },
                 };
             },
