@@ -3,6 +3,8 @@
 
 <head>
     <title>座席表</title>
+    <meta http-equiv="content-type" charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/vue@next"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
@@ -43,6 +45,7 @@
             justify-content: center;
             align-items: center;
         }
+
         .active {
             background-color: #ffaa00;
         }
@@ -59,6 +62,7 @@
             line-height: 100px;
             cursor: grab;
         }
+
         .box.seated {
             background-color: #999;
             cursor: no-drop;
@@ -82,61 +86,31 @@
 
     <div id="app">
         <h1 class="bg-secondary text-white display-3 px-2" style="line-height: 1.4;">Seat Management</h1>
-        
+
         <h2 class="be-secondary">Seats</h2>
         <div class="section-row">
-            <div class="section"
-                v-for="row in layout.rows"
-                :key="row"
-            >
+            <div class="section" v-for="row in layout.rows" :key="row">
                 <div class="seat-island">
                     <div class="seat-row">
-                        <div class="seat"
-                            v-for="s in layout['large-seats']"
-                            :key="s"
-                            :id="`${row}-seat-l-${s}`"
-                            @drop="drop"
-                            @dragover.prevent @dragleave.prevent
-                            @contextmenu="leave"
-                            @contextmenu.prevent
-                        ></div>
+                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-${s}`"
+                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                        </div>
                     </div>
                     <div class="table-large"></div>
                     <div class="seat-row">
-                        <div class="seat"
-                            v-for="s in layout['large-seats']"
-                            :key="s"
-                            :id="`seat-r-${s}`"
-                            @drop="drop"
-                            @dragover.prevent @dragleave.prevent
-                            @contextmenu="leave"
-                            @contextmenu.prevent
-                        ></div>
+                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`seat-r-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent></div>
                     </div>
                 </div>
                 <div class="seat-island">
                     <div class="seat-row">
-                        <div class="seat"
-                            v-for="s in layout['small-seats']"
-                            :key="s"
-                            :id="`seat-l-${s}`"
-                            @drop="drop"
-                            @dragover.prevent @dragleave.prevent
-                            @contextmenu="leave"
-                            @contextmenu.prevent
-                        ></div>
+                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`seat-l-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent></div>
                     </div>
                     <div class="table-small"></div>
                     <div class="seat-row">
-                        <div class="seat"
-                            v-for="s in layout['small-seats']"
-                            :key="s"
-                            :id="`seat-r-${s}`"
-                            @drop="drop"
-                            @dragover.prevent @dragleave.prevent
-                            @contextmenu="leave"
-                            @contextmenu.prevent
-                        ></div>
+                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`seat-r-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent></div>
                     </div>
                 </div>
             </div>
@@ -144,12 +118,16 @@
 
         <h2>Employees</h2>
         <div class="section-row">
-            <div v-for="(item, key) in items"
-                class="box"
-                :class="{ seated: item.seated, }"
-                :draggable="!item.seated"
-                @dragstart="dragStart($event, key)"
-            >{{ item.name }}
+            <div v-for="(item, key) in items" class="box" :class="{ seated: item.seated, }" :draggable="!item.seated"
+                @dragstart="dragStart($event, key)">{{ item.name }}
+            </div>
+        </div>
+        <div class="section-row">
+            <input type="text" v-model="keyword">
+        </div>
+        <div class="section-row">
+            <div v-for="(item, key) in filteredItems" class="box" :class="{ seated: item.seated, }"
+                :draggable="!item.seated" @dragstart="dragStart($event, key)">{{ item.name }}
             </div>
         </div>
 
@@ -167,21 +145,22 @@
                         'large-seats': 5, // 大テーブルの座席数（片側）
                     },
                     items: {
-                        Chanoki: { name: "茶之木", seated: true, seatId: 'seat-l-3' },
-                        Sawada: { name: "澤田", seated: true, seatId: 'seat-l-1' },
-                        Katoken: { name: "加藤", seated: true, seatId: 'seat-l-2'},
-                        Kai: { name: "甲斐", seated: false, },
-                        Shito: { name: "志藤", seated: false, },
-                        Kasami: { name: "笠見", seated: false, },
-                        Umeda  : { name: "梅田", seated: false, },
-                        Ikeda : { name: "池田", seated: false, },
-                        Yamashita: { name: "山下", seated: false, },
-                        Sogabe: { name: "曽我部", seated: false, },
-                        Miyake: { name: "三宅", seated: false, },
-                        Sato: { name: "佐藤", seated: false, },
-                        Ikeda  : { name: "浅田", seated: false, },
-                        Masuda : { name: "宮川", seated: false, },
+                        Chanoki: { name: "茶之木", engName: 'chanoki', seated: true, seatId: 'seat-l-3' },
+                        Sawada: { name: "澤田", engName: 'Sawada',seated: true, seatId: 'seat-l-1' },
+                        Katoken: { name: "加藤", engName: 'Katoken',seated: true, seatId: 'seat-l-2' },
+                        Kai: { name: "甲斐", engName: 'Kai',seated: false, },
+                        Shito: { name: "志藤", engName: 'Shito',seated: false, },
+                        Kasami: { name: "笠見", engName: 'Kasami',seated: false, },
+                        Umeda: { name: "梅田", engName: 'Umeda',seated: false, },
+                        Ikeda: { name: "池田", engName: 'Ikeda',seated: false, },
+                        Yamashita: { name: "山下", engName: 'Yamashita',seated: false, },
+                        Sogabe: { name: "曽我部", engName: 'Sogabe',seated: false, },
+                        Miyake: { name: "三宅", engName: 'Miyake',seated: false, },
+                        Sato: { name: "佐藤", engName: 'Sato',seated: false, },
+                        Ikeda: { name: "浅田", engName: 'Ikeda',seated: false, },
+                        Miyagawa: { name: "宮川", engName: 'Miyagawa',seated: false, },
                     },
+                    keyword: ''
                 };
             },
             methods: {
@@ -192,12 +171,12 @@
                 drop(event) {
                     console.log(event.target);
                     const key = event.dataTransfer.getData("text/plain");
-                    
+
                     event.target.innerHTML = this.items[key].name;
                     event.target.setAttribute("user", key);
                     this.items[key].seated = true; // 着席状態
                     event.target.classList.add("active"); // 席も使用状態
-                    
+
                     this.draggedItem = null;
                 },
                 allowDrop(event) {
@@ -206,7 +185,7 @@
                 leave(event) {
                     console.log(event.target);
                     const key = event.target.getAttribute("user");
-                    
+
                     event.target.innerHTML = "";
                     event.target.removeAttribute("user");
                     this.items[key].seated = false; // 着席状態
@@ -214,20 +193,32 @@
                 },
             },
             mounted() {
-            // ページが読み込まれたときに初期の座席割り当てを行う
-            for (let key in this.items) {
-                let item = this.items[key];
-                if (item.seatId) {
-                    let seatElement = document.getElementById(item.seatId);
-                    if (seatElement) {
-                        seatElement.innerHTML = item.name;
-                        seatElement.setAttribute("user", key);
-                        item.seated = true; // 着席状態
-                        seatElement.classList.add("active"); // 席も使用状態
+                // ページが読み込まれたときに初期の座席割り当てを行う
+                for (let key in this.items) {
+                    let item = this.items[key];
+                    if (item.seatId) {
+                        let seatElement = document.getElementById(item.seatId);
+                        if (seatElement) {
+                            seatElement.innerHTML = item.name;
+                            seatElement.setAttribute("user", key);
+                            item.seated = true; // 着席状態
+                            seatElement.classList.add("active"); // 席も使用状態
+                        }
                     }
                 }
+            },
+            computed: {  // ここが修正されています
+                filteredItems() {
+                    var items = [];
+                    for (var i in this.items) {
+                        var item = this.items[i];
+                        if (item.name.indexOf(this.keyword) !== -1 || item.engName.toLowerCase().indexOf(this.keyword) !== -1) {
+                            items.push(item);
+                        }
+                    }
+                    return items;
+                }
             }
-           }
         };
 
 
