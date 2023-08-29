@@ -4,10 +4,7 @@
 <head>
     <title>座席表</title>
     <meta http-equiv="content-type" charset="utf-8">
-<<<<<<< HEAD
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-=======
->>>>>>> d3b0da41003f70df373059bdd4d4cd831b573108
     <script src="https://unpkg.com/vue@next"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
@@ -126,7 +123,7 @@
             </div>
         </div>
         <div class="section-row">
-            <input type="text" v-model="keyword">
+            <input type="text" v-model="keyword" placeholder="名前をいれてね">
         </div>
         <div class="section-row">
             <div v-for="(item, key) in filteredItems" class="box" :class="{ seated: item.seated, }"
@@ -149,19 +146,20 @@
                     },
                     items: {
                         Chanoki: { name: "茶之木", engName: 'chanoki', seated: true, seatId: 'seat-l-3' },
-                        Sawada: { name: "澤田", engName: 'Sawada',seated: true, seatId: 'seat-l-1' },
-                        Katoken: { name: "加藤", engName: 'Katoken',seated: true, seatId: 'seat-l-2' },
-                        Kai: { name: "甲斐", engName: 'Kai',seated: false, },
-                        Shito: { name: "志藤", engName: 'Shito',seated: false, },
-                        Kasami: { name: "笠見", engName: 'Kasami',seated: false, },
-                        Umeda: { name: "梅田", engName: 'Umeda',seated: false, },
-                        Ikeda: { name: "池田", engName: 'Ikeda',seated: false, },
-                        Yamashita: { name: "山下", engName: 'Yamashita',seated: false, },
-                        Sogabe: { name: "曽我部", engName: 'Sogabe',seated: false, },
-                        Miyake: { name: "三宅", engName: 'Miyake',seated: false, },
-                        Sato: { name: "佐藤", engName: 'Sato',seated: false, },
-                        Ikeda: { name: "浅田", engName: 'Ikeda',seated: false, },
-                        Miyagawa: { name: "宮川", engName: 'Miyagawa',seated: false, },
+                        Sawada: { name: "澤田", engName: 'Sawada', seated: true, seatId: 'seat-l-1' },
+                        Katoken: { name: "加藤", engName: 'Katoken', seated: true, seatId: 'seat-l-2' },
+                        Kai: { name: "甲斐", engName: 'Kai', seated: false, },
+                        Shito: { name: "志藤", engName: 'Shito', seated: false, },
+                        Kasami: { name: "笠見", engName: 'Kasami', seated: false, },
+                        Umeda: { name: "梅田", engName: 'Umeda', seated: false, },
+                        Ikeda: { name: "池田", engName: 'Ikeda', seated: false, },
+                        Yamashita: { name: "山下", engName: 'Yamashita', seated: false, },
+                        Sogabe: { name: "曽我部", engName: 'Sogabe', seated: false, },
+                        Miyake: { name: "三宅", engName: 'Miyake', seated: false, },
+                        Sato: { name: "佐藤", engName: 'Sato', seated: false, },
+                        Ikeda: { name: "浅田", engName: 'Ikeda', seated: false, },
+                        Miyagawa: { name: "宮川", engName: 'Miyagawa', seated: false, },
+                        Masuda: { name: "増田", engName: 'Masuda', seated: false,}
                     },
                     keyword: ''
                 };
@@ -210,18 +208,19 @@
                     }
                 }
             },
-            computed: {  // ここが修正されています
+            computed: {
                 filteredItems() {
-                    var items = [];
-                    for (var i in this.items) {
-                        var item = this.items[i];
+                    var filteredItemsObj = {};  // 空のオブジェクトを作成
+                    for (var key in this.items) {
+                        var item = this.items[key];
                         if (item.name.indexOf(this.keyword) !== -1 || item.engName.toLowerCase().indexOf(this.keyword) !== -1) {
-                            items.push(item);
+                            filteredItemsObj[key] = item;  // キーとアイテムをオブジェクトに追加
                         }
                     }
-                    return items;
+                    return filteredItemsObj;  // オブジェクトを返す
                 }
             }
+
         };
 
 
