@@ -139,6 +139,7 @@
         const appdata = {
             data() {
                 return {
+                    seatCoordinator: {},
                     layout: {
                         'rows': 8, // 島の数
                         'small-seats': 3, // 小テーブルの座席数（片側）
@@ -165,32 +166,40 @@
                 };
             },
             methods: {
+                assignSeat(employee, coordinate) {
+                    //座標を従業員に割り当てる
+                    this.seatCoordinator[employee] = coordinate;
+                },
+                unassignSeat(employee) {
+                    //座標を従業員から取り除く
+                    delete this.seatCoordinator[employee];
+                },
                 dragStart(event, key) {
                     event.dataTransfer.setData("text/plain", key);
-                    console.log(event.dataTransfer.getData("text/plain"));
                 },
                 drop(event) {
-                    console.log(event.target);
                     const key = event.dataTransfer.getData("text/plain");
+                    const coordinate = event.target.id;
 
-                    event.target.innerHTML = this.items[key].name;
-                    event.target.setAttribute("user", key);
-                    this.items[key].seated = true; // 着席状態
-                    event.target.classList.add("active"); // 席も使用状態
+                    this.assignSeat(key, coordinate);
 
-                    this.draggedItem = null;
+                    // event.target.innerHTML = this.items[key].name;
+                    // event.target.setAttribute("user", key);
+                    // this.items[key].seated = true; // 着席状態
+                    // event.target.classList.add("active"); // 席も使用状態
+                    // this.draggedItem = null;
                 },
                 allowDrop(event) {
                     event.preventDefault();
                 },
                 leave(event) {
-                    console.log(event.target);
                     const key = event.target.getAttribute("user");
 
-                    event.target.innerHTML = "";
-                    event.target.removeAttribute("user");
-                    this.items[key].seated = false; // 着席状態
-                    event.target.classList.remove("active"); // 席も使用状態
+                    this.unassignSeat(key);
+                    // event.target.innerHTML = "";
+                    // event.target.removeAttribute("user");
+                    // this.items[key].seated = false; // 着席状態
+                    // event.target.classList.remove("active"); // 席も使用状態
                 },
             },
             mounted() {
