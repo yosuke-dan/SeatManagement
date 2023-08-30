@@ -76,31 +76,35 @@
         </h1>
         <h2 class="be-secondary">Chart</h2>
         <div class="section-row">
-            <div class="section">
+            <div class="section" v-for="row in layout.rows" :key="row">
                 <div class="seat-island">
                     <div class="seat-row">
-                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`seat-l-l-${s}`" @drop="drop"
-                            @dragover.prevent @dragleave.prevent>{{
-                            occupiedSeats['seat-l-l-' + s] }}</div>
+                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-l-${s}`"
+                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                            {{
+                            getNameById(occupiedSeats[row + '-seat-l-l-' + s]) }}</div>
                     </div>
                     <div class="tableLarge"></div>
                     <div class="seat-row">
-                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`seat-l-r-${s}`" @drop="drop"
-                            @dragover.prevent @dragleave.prevent>{{
-                            occupiedSeats['seat-l-r-' + s] }}</div>
+                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-r-${s}`"
+                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                            {{
+                            getNameById(occupiedSeats[row + '-seat-l-r-' + s]) }}</div>
                     </div>
                 </div>
                 <div class="seat-island">
                     <div class="seat-row">
-                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`seat-s-l-${s}`" @drop="drop"
-                            @dragover.prevent @dragleave.prevent>{{
-                            occupiedSeats['seat-s-l-' + s] }}</div>
+                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-l-${s}`"
+                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                            {{
+                            getNameById(occupiedSeats[row + '-seat-s-l-' + s]) }}</div>
                     </div>
                     <div class="tableSmall"></div>
                     <div class="seat-row">
-                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`seat-s-r-${s}`" @drop="drop"
-                            @dragover.prevent @dragleave.prevent>{{
-                            occupiedSeats['seat-s-r-' + s] }}</div>
+                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-r-${s}`"
+                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                            {{
+                            getNameById(occupiedSeats[row + '-seat-s-r-' + s]) }}</div>
                     </div>
                 </div>
             </div>
@@ -108,9 +112,18 @@
 
         <h2>Employees</h2>
         <div class="section-row">
-            <div v-for="employee in employees" class="box" draggable="true" @dragstart="dragStart($event, employee)">{{
+            <input type="text" v-model="keyword" placeholder="名前をいれてね">
+        </div>
+        <div class="section-row">
+            <div v-for="employee in filteredEmployees" class="box" draggable="true" @dragstart="dragStart($event, employee)">{{
                 employee.name }}
             </div>
+        </div>
+
+        <h2>Actions</h2>
+        <div class="section-row">
+            <button type="button" class="btn btn-primary btn-lg" @click="resetAssign">Reset</button>
+            <button type="button" class="btn btn-secondary btn-lg" @click="randomAssign">Random</button>
         </div>
     </div>
 
@@ -125,30 +138,45 @@
                     },
                     draggedItem: '',
                     employees: {
-                        user554: { employeeId: '554', name: '長友　凌也' },
-                        user555: { employeeId: '555', name: '梅田　啓吾' },
-                        user556: { employeeId: '556', name: '加藤　優佑' },
-                        user557: { employeeId: '557', name: '土屋　諒' },
-                        user558: { employeeId: '558', name: '増田　隆平' },
-                        user559: { employeeId: '559', name: '曽我部　勇吾' },
-                        user561: { employeeId: '561', name: '三宅　智規' },
-                        user562: { employeeId: '562', name: '山下　洋輔' },
-                        user563: { employeeId: '563', name: '浅田　翔一朗' },
-                        user564: { employeeId: '564', name: '佐藤　晃' },
-                        user565: { employeeId: '565', name: '宮川　涼磨' },
-                        user568: { employeeId: '568', name: '木寺　優水' },
+                        user554: { employeeId: '554', name: '長友' },
+                        user555: { employeeId: '555', name: '梅田' },
+                        user556: { employeeId: '556', name: '加藤' },
+                        user557: { employeeId: '557', name: '土屋' },
+                        user558: { employeeId: '558', name: '増田' },
+                        user559: { employeeId: '559', name: '曽我部' },
+                        user561: { employeeId: '561', name: '三宅' },
+                        user562: { employeeId: '562', name: '山下' },
+                        user563: { employeeId: '563', name: '浅田' },
+                        user564: { employeeId: '564', name: '佐藤' },
+                        user565: { employeeId: '565', name: '宮川' },
+                        user568: { employeeId: '568', name: '木寺' },
                     },
                     occupiedSeats: {
                         // seatId : employeeId
                     },
+                    keyword: ''
+                }
+            },
+            computed: {
+                filteredEmployees() {
+                    var filteredEmployeesObj = {};  // 空のオブジェクトを作成
+                    for (var key in this.employees) {
+                        var employee = this.employees[key];
+                        if (employee.name.indexOf(this.keyword) !== -1 ) {
+                            filteredEmployeesObj[key] = employee;  // キーとアイテムをオブジェクトに追加
+                        }
+                    }
+                    return filteredEmployeesObj;  // オブジェクトを返す
                 }
             },
             methods: {
+                //[イベント]ドラッグ開始
                 dragStart(event, employee) {
                     //ドラッグ箱の初期化
                     this.draggedItem = '';
-                    this.draggedItem = employee.name;
+                    this.draggedItem = employee.employeeId;
                 },
+                //[イベント]座席にドロップ
                 drop(event) {
                     const seatId = event.target.id;
                     this.assignSeat(seatId, this.draggedItem);
@@ -156,27 +184,94 @@
                     //ドラッグ箱の初期化
                     this.draggedItem = '';
                 },
-                assignSeat(seatId, employeeId) {
-                    if(this.isOccupied(seatId) && this.isSeated(employeeId)){
-                    this.occupiedSeats[seatId] = employeeId;
+                //[イベント]座席右クリック
+                leave(event) {
+                    const seatId = event.target.id;
+                    this.unassignSeat(seatId);
+                },
+                //[イベント]リセットボタン押下
+                resetAssign() {
+                    if(!confirm('リセットして良い？')) return;
+                    for (let key in this.occupiedSeats) {
+                        this.unassignSeat(key);
+                    }
+                    this.keyword = ''; 
+                },
+                randomAssign() {
+                    if(!confirm('ランダムに配置して良い？')) return;
+
+                    // すべての割り当てをクリア
+                    this.occupiedSeats = {};
+
+                    // すべての席を配列に格納
+                    const allSeats = [];
+                    for (let row = 1; row <= this.layout.rows; row++) {
+                        for (let s = 1; s <= this.layout['large-seats']; s++) {
+                            allSeats.push(`${row}-seat-l-l-${s}`);
+                            allSeats.push(`${row}-seat-l-r-${s}`);
+                        }
+                        for (let s = 1; s <= this.layout['small-seats']; s++) {
+                            allSeats.push(`${row}-seat-s-l-${s}`);
+                            allSeats.push(`${row}-seat-s-r-${s}`);
+                        }
+                    }
+
+                    // 席をシャッフル
+                    const shuffledSeats = this.shuffleArray([...allSeats]);
+
+                    // 従業員のIDを配列に格納
+                    const employeeIds = Object.keys(this.employees);
+
+                    // 従業員をランダムな席に割り当て
+                    for (let i = 0; i < employeeIds.length; i++) {
+                        const seat = shuffledSeats[i];
+                        if (seat) {
+                            this.assignSeat(seat, this.employees[employeeIds[i]].employeeId);
+                        }
                     }
                 },
-                unassignSeat(employee) {
+                // 配列をシャッフルするユーティリティ関数
+                shuffleArray(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                },
+                //座席を社員に割り当てる
+                assignSeat(seatId, employeeId) {
+                    if (this.isOccupied(seatId) && this.isSeated(employeeId)) {
+                        this.occupiedSeats[seatId] = employeeId;
+                    }
+                },
+                //割り当て削除
+                unassignSeat(seatId) {
                     delete this.occupiedSeats[seatId];
                 },
-                isOccupied(seatId){
-                    if(this.occupiedSeats[seatId]){
+                //座席の占有チェック
+                isOccupied(seatId) {
+                    if (this.occupiedSeats[seatId]) {
                         alert('その席にはすでに誰かが座っている');
                         return false; //その席にはすでに誰かが座っている
                     }
-                        return true; //OK
+                    return true; //OK
                 },
-                isSeated(employeeId){
-                    if(Object.keys(this.occupiedSeats).find(key => this.occupiedSeats[key] === employeeId)){
+                //社員に座席が割り当てられているかチェック
+                isSeated(employeeId) {
+                    if (Object.keys(this.occupiedSeats).find(key => this.occupiedSeats[key] === employeeId)) {
                         alert('その人はすでに別の席に座っている');
                         return false; //その人はすでに別の席に座っている
                     }
-                        return true; //OK
+                    return true; //OK
+                },
+                //社員番号から社員名を取得
+                getNameById(employeeId) {
+                    // Object.values()でオブジェクトから配列を作成
+                    const employeesArray = Object.values(this.employees);
+                    // find()メソッドで指定したemployeeIdと一致するオブジェクトを探す
+                    const employee = employeesArray.find(emp => emp.employeeId === employeeId);
+                    // オブジェクトが見つかればその名前（name）を返す、見つからなければundefinedを返す
+                    return employee ? employee.name : undefined;
                 }
             }
         };
