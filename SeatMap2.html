@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>座席表</title>
+    <script src="https://unpkg.com/vue@next"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <style>
+        .box {
+            height: 100px;
+            width: 100px;
+            border: 1px solid black;
+            margin-right: 5px;
+            margin-left: 5px;
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 100px;
+        }
+
+        .seat {
+            width: 50px;
+            height: 50px;
+            background-color: #ccc;
+            margin: 5px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tableLarge {
+            width: 70px;
+            height: 278px;
+            background-color: #ccc;
+            border: 1px solid #000;
+        }
+
+        .tableSmall {
+            width: 70px;
+            height: 164px;
+            background-color: #ccc;
+            border: 1px solid #000;
+        }
+
+        .seat-island {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-right: 15px;
+            margin-left: 15px;
+        }
+
+        .section-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <h1 class="bg-secondary text-white display-3 px-2 align-middle pb-3">Seat Management
+        </h1>
+        <h2 class="be-secondary">Chart</h2>
+        <div class="section-row">
+            <div class="section">
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`seat-l-l-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent>{{
+                            occupiedSeats['seat-l-l-' + s] }}</div>
+                    </div>
+                    <div class="tableLarge"></div>
+                    <div class="seat-row">
+                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`seat-l-r-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent>{{
+                            occupiedSeats['seat-l-r-' + s] }}</div>
+                    </div>
+                </div>
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`seat-s-l-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent>{{
+                            occupiedSeats['seat-s-l-' + s] }}</div>
+                    </div>
+                    <div class="tableSmall"></div>
+                    <div class="seat-row">
+                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`seat-s-r-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent>{{
+                            occupiedSeats['seat-s-r-' + s] }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>Employees</h2>
+        <div class="section-row">
+            <div v-for="employee in employees" class="box" draggable="true" @dragstart="dragStart($event, employee)">{{
+                employee.name }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const appdata = {
+            data() {
+                return {
+                    layout: {
+                        'rows': 8, // 島の数
+                        'small-seats': 3, // 小テーブルの座席数（片側）
+                        'large-seats': 5, // 大テーブルの座席数（片側）
+                    },
+                    draggedItem: '',
+                    employees: {
+                        user554: { employeeId: '554', name: '長友　凌也' },
+                        user555: { employeeId: '555', name: '梅田　啓吾' },
+                        user556: { employeeId: '556', name: '加藤　優佑' },
+                        user557: { employeeId: '557', name: '土屋　諒' },
+                        user558: { employeeId: '558', name: '増田　隆平' },
+                        user559: { employeeId: '559', name: '曽我部　勇吾' },
+                        user561: { employeeId: '561', name: '三宅　智規' },
+                        user562: { employeeId: '562', name: '山下　洋輔' },
+                        user563: { employeeId: '563', name: '浅田　翔一朗' },
+                        user564: { employeeId: '564', name: '佐藤　晃' },
+                        user565: { employeeId: '565', name: '宮川　涼磨' },
+                        user568: { employeeId: '568', name: '木寺　優水' },
+                    },
+                    occupiedSeats: {
+                        // seatId : employeeId
+                    },
+                }
+            },
+            methods: {
+                dragStart(event, employee) {
+                    //ドラッグ箱の初期化
+                    this.draggedItem = '';
+                    this.draggedItem = employee.name;
+                },
+                drop(event) {
+                    const seatId = event.target.id;
+                    this.assignSeat(seatId, this.draggedItem);
+                    //this.seats[id] = this.draggedItem
+                    //ドラッグ箱の初期化
+                    this.draggedItem = '';
+                },
+                assignSeat(seatId, employeeId) {
+                    if(this.isOccupied(seatId) && this.isSeated(employeeId)){
+                    this.occupiedSeats[seatId] = employeeId;
+                    }
+                },
+                unassignSeat(employee) {
+                    delete this.occupiedSeats[seatId];
+                },
+                isOccupied(seatId){
+                    if(this.occupiedSeats[seatId]){
+                        alert('その席にはすでに誰かが座っている');
+                        return false; //その席にはすでに誰かが座っている
+                    }
+                        return true; //OK
+                },
+                isSeated(employeeId){
+                    if(Object.keys(this.occupiedSeats).find(key => this.occupiedSeats[key] === employeeId)){
+                        alert('その人はすでに別の席に座っている');
+                        return false; //その人はすでに別の席に座っている
+                    }
+                        return true; //OK
+                }
+            }
+        };
+
+        let app = Vue.createApp(appdata)
+        app.mount('#app')
+    </script>
+</body>
+
+</html>
