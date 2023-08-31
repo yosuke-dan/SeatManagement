@@ -23,6 +23,11 @@
             line-height: 100px;
         }
 
+        .box.seated {
+            background-color: #999;
+            cursor: no-drop;
+        }
+
         .seat {
             width: 50px;
             height: 50px;
@@ -32,6 +37,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .seat.occupied {
+            background-color: #fff;
         }
 
         .tableLarge {
@@ -80,30 +89,34 @@
             <div class="section" v-for="row in layout.rows" :key="row">
                 <div class="seat-island">
                     <div class="seat-row">
-                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-l-${s}`"
-                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                        <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-l-' + s)}"
+                            v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-l-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
                             {{
                             getNameById(occupiedSeats[row + '-seat-l-l-' + s]) }}</div>
                     </div>
                     <div class="tableLarge"></div>
                     <div class="seat-row">
-                        <div class="seat" v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-r-${s}`"
-                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                        <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-r-' + s)}"
+                            v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-r-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
                             {{
                             getNameById(occupiedSeats[row + '-seat-l-r-' + s]) }}</div>
                     </div>
                 </div>
                 <div class="seat-island">
                     <div class="seat-row">
-                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-l-${s}`"
-                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                        <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-l-' + s)}"
+                            v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-l-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
                             {{
                             getNameById(occupiedSeats[row + '-seat-s-l-' + s]) }}</div>
                     </div>
                     <div class="tableSmall"></div>
                     <div class="seat-row">
-                        <div class="seat" v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-r-${s}`"
-                            @drop="drop" @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                        <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-r-' + s)}"
+                            v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-r-${s}`" @drop="drop"
+                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
                             {{
                             getNameById(occupiedSeats[row + '-seat-s-r-' + s]) }}</div>
                     </div>
@@ -113,17 +126,18 @@
 
         <h2>Employees</h2>
         <div class="section-row">
-            <input type="text" v-model="keyword" placeholder="名前をいれてね">
+            <input type="text" v-model="keyword" placeholder="名前をいれてね(漢字)" style="margin-bottom: 5px" >
         </div>
         <div class="section-row">
-            <div v-for="employee in filteredEmployees" class="box" draggable="true" @dragstart="dragStart($event, employee)">{{
+            <div v-for="employee in filteredEmployees" class="box" :class="{ seated: isSeated(employee.employeeId)}"
+                :draggable="true" @dragstart="dragStart($event, employee)">{{
                 employee.name }}
             </div>
         </div>
 
         <h2>Actions</h2>
         <div class="section-row">
-            <button type="button" class="btn btn-primary btn-lg" @click="resetAssign">Reset</button>
+            <button type="button" class="btn btn-primary btn-lg" @click="resetAssign" style="margin-right: 10px;">Reset</button>
             <button type="button" class="btn btn-secondary btn-lg" @click="randomAssign">Random</button>
         </div>
     </div>
@@ -139,6 +153,97 @@
                     },
                     draggedItem: '',
                     employees: {
+                        user2: { employeeId: '2', name: '佐藤社長' },
+                        user4: { employeeId: '4', name: '尾高部長' },
+                        user18: { employeeId: '18', name: '照沼執行役員' },
+                        user19: { employeeId: '19', name: '石井' },
+                        user26: { employeeId: '26', name: '小川' },
+                        user53: { employeeId: '53', name: '楠瀬' },
+                        user64: { employeeId: '64', name: '中嶋' },
+                        user80: { employeeId: '80', name: '茅野' },
+                        user81: { employeeId: '81', name: '最上' },
+                        user90: { employeeId: '90', name: '土田' },
+                        user92: { employeeId: '92', name: '鈴木' },
+                        user110: { employeeId: '110', name: '澤田' },
+                        user120: { employeeId: '120', name: '大平' },
+                        user161: { employeeId: '161', name: '中島' },
+                        user170: { employeeId: '170', name: '平澤' },
+                        user193: { employeeId: '193', name: '市川' },
+                        user222: { employeeId: '222', name: '田崎' },
+                        user224: { employeeId: '224', name: '剣持' },
+                        user243: { employeeId: '243', name: '日髙' },
+                        user266: { employeeId: '266', name: '神宮' },
+                        user272: { employeeId: '272', name: '大西' },
+                        user293: { employeeId: '293', name: '楠' },
+                        user308: { employeeId: '308', name: '辻本' },
+                        user331: { employeeId: '331', name: '菊池' },
+                        user339: { employeeId: '339', name: '濱中' },
+                        user341: { employeeId: '341', name: '滝川' },
+                        user342: { employeeId: '342', name: '松澤' },
+                        user348: { employeeId: '348', name: '平本' },
+                        user353: { employeeId: '353', name: '西澤' },
+                        user374: { employeeId: '374', name: '相武' },
+                        user376: { employeeId: '376', name: '甲斐課長' },
+                        user382: { employeeId: '382', name: '宮島' },
+                        user385: { employeeId: '385', name: '市田' },
+                        user390: { employeeId: '390', name: '伊藤' },
+                        user412: { employeeId: '412', name: '島尻' },
+                        user416: { employeeId: '416', name: '有賀' },
+                        user420: { employeeId: '420', name: '高畑' },
+                        user428: { employeeId: '428', name: '河合' },
+                        user432: { employeeId: '432', name: '森' },
+                        user433: { employeeId: '433', name: '吉若' },
+                        user440: { employeeId: '440', name: '小池' },
+                        user443: { employeeId: '443', name: '穴沢' },
+                        user455: { employeeId: '455', name: '蟻田課長' },
+                        user465: { employeeId: '465', name: '下村' },
+                        user469: { employeeId: '469', name: '志藤' },
+                        user470: { employeeId: '470', name: '髙橋' },
+                        user471: { employeeId: '471', name: '茶之木' },
+                        user474: { employeeId: '474', name: '薗田' },
+                        user477: { employeeId: '477', name: '鈴木' },
+                        user478: { employeeId: '478', name: '玉塚' },
+                        user481: { employeeId: '481', name: '柴田' },
+                        user482: { employeeId: '482', name: '芹澤' },
+                        user483: { employeeId: '483', name: '出口' },
+                        user486: { employeeId: '486', name: '山本' },
+                        user487: { employeeId: '487', name: '榎本' },
+                        user491: { employeeId: '491', name: '山本' },
+                        user492: { employeeId: '492', name: '佐藤本部長' },
+                        user495: { employeeId: '495', name: '柏木' },
+                        user496: { employeeId: '496', name: '石戸' },
+                        user498: { employeeId: '498', name: '細根' },
+                        user499: { employeeId: '499', name: '松川' },
+                        user502: { employeeId: '502', name: 'レ' },
+                        user503: { employeeId: '503', name: '岡本' },
+                        user507: { employeeId: '507', name: '笠見' },
+                        user508: { employeeId: '508', name: '中村' },
+                        user509: { employeeId: '509', name: '林田' },
+                        user511: { employeeId: '511', name: '田母神' },
+                        user512: { employeeId: '512', name: '渡部' },
+                        user514: { employeeId: '514', name: '浅子' },
+                        user517: { employeeId: '517', name: '加藤' },
+                        user520: { employeeId: '520', name: '土井' },
+                        user523: { employeeId: '523', name: '山田' },
+                        user525: { employeeId: '525', name: '高野' },
+                        user527: { employeeId: '527', name: '後小路' },
+                        user529: { employeeId: '529', name: '荻野' },
+                        user530: { employeeId: '530', name: '堀田' },
+                        user533: { employeeId: '533', name: '伊東' },
+                        user535: { employeeId: '535', name: '斉藤' },
+                        user536: { employeeId: '536', name: '濱井' },
+                        user537: { employeeId: '537', name: '飯沼' },
+                        user538: { employeeId: '538', name: '小長井' },
+                        user539: { employeeId: '539', name: '酒井' },
+                        user540: { employeeId: '540', name: '桃井' },
+                        user541: { employeeId: '541', name: '大西' },
+                        user545: { employeeId: '545', name: '山本' },
+                        user547: { employeeId: '547', name: '河井' },
+                        user548: { employeeId: '548', name: '南川' },
+                        user550: { employeeId: '550', name: '井川' },
+                        user551: { employeeId: '551', name: '鈴木' },
+                        user552: { employeeId: '552', name: '池田' },
+                        user553: { employeeId: '553', name: '立川' },
                         user554: { employeeId: '554', name: '長友' },
                         user555: { employeeId: '555', name: '梅田' },
                         user556: { employeeId: '556', name: '加藤' },
@@ -151,6 +256,8 @@
                         user564: { employeeId: '564', name: '佐藤' },
                         user565: { employeeId: '565', name: '宮川' },
                         user568: { employeeId: '568', name: '木寺' },
+
+
                     },
                     occupiedSeats: {
                         // seatId : employeeId
@@ -161,15 +268,24 @@
             computed: {
                 filteredEmployees() {
                     var filteredEmployeesObj = {};  // 空のオブジェクトを作成
+                    var count = 0; // カウント用の変数を用意
+
                     for (var key in this.employees) {
                         var employee = this.employees[key];
-                        if (employee.name.indexOf(this.keyword) !== -1 ) {
+
+                        if (employee.name.indexOf(this.keyword) !== -1) {
+                            if (count >= 15) { // 既に10人選択済みの場合はループを抜ける
+                                break;
+                            }
+
                             filteredEmployeesObj[key] = employee;  // キーとアイテムをオブジェクトに追加
+                            count++; // カウントを増やす
                         }
                     }
                     return filteredEmployeesObj;  // オブジェクトを返す
                 }
             },
+
             methods: {
                 //[イベント]ドラッグ開始
                 dragStart(event, employee) {
@@ -192,14 +308,14 @@
                 },
                 //[イベント]リセットボタン押下
                 resetAssign() {
-                    if(!confirm('リセットして良い？')) return;
+                    if (!confirm('リセットして良い？')) return;
                     for (let key in this.occupiedSeats) {
                         this.unassignSeat(key);
                     }
-                    this.keyword = ''; 
+                    this.keyword = '';
                 },
                 randomAssign() {
-                    if(!confirm('ランダムに配置して良い？')) return;
+                    if (!confirm('ランダムに配置して良い？')) return;
 
                     // すべての割り当てをクリア
                     this.occupiedSeats = {};
@@ -241,7 +357,7 @@
                 },
                 //座席を社員に割り当てる
                 assignSeat(seatId, employeeId) {
-                    if (this.isOccupied(seatId) && this.isSeated(employeeId)) {
+                    if (!this.isOccupied(seatId) && !this.isSeated(employeeId)) {
                         this.occupiedSeats[seatId] = employeeId;
                     }
                 },
@@ -252,18 +368,18 @@
                 //座席の占有チェック
                 isOccupied(seatId) {
                     if (this.occupiedSeats[seatId]) {
-                        alert('その席にはすでに誰かが座っている');
-                        return false; //その席にはすでに誰かが座っている
+                        //alert('その席にはすでに誰かが座っている');
+                        return true; //その席にはすでに誰かが座っている
                     }
-                    return true; //OK
+                    return false; //OK
                 },
                 //社員に座席が割り当てられているかチェック
                 isSeated(employeeId) {
                     if (Object.keys(this.occupiedSeats).find(key => this.occupiedSeats[key] === employeeId)) {
-                        alert('その人はすでに別の席に座っている');
-                        return false; //その人はすでに別の席に座っている
+                        //alert('その人はすでに別の席に座っている');
+                        return true; //その人はすでに別の席に座っている
                     }
-                    return true; //OK
+                    return false; //OK
                 },
                 //社員番号から社員名を取得
                 getNameById(employeeId) {
