@@ -25,7 +25,6 @@
 
         .box.seated {
             background-color: #999;
-            cursor: no-drop;
         }
 
         .seat {
@@ -40,6 +39,22 @@
         }
 
         .seat.occupied {
+            background-color: #fff;
+        }
+
+        .managerSeat {
+            width: 68px;
+            height: 50px;
+            background-color: #ccc;
+            margin: auto;
+            margin-bottom: 4px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .managerSeat.occupied {
             background-color: #fff;
         }
 
@@ -63,11 +78,13 @@
             justify-content: center;
             align-items: center;
             margin-bottom: 30px;
+            position: relative;
         }
 
         .section {
             margin-right: 15px;
             margin-left: 15px;
+            justify-content: center;
         }
 
         .section-row {
@@ -84,41 +101,55 @@
     <div id="app">
         <h1 class="bg-secondary text-white display-3 px-2 align-middle pb-3">Seat Management
         </h1>
-        <h2 class="be-secondary">Chart</h2>
+        <h2 class="be-secondary">Seats</h2>
         <div class="section-row">
             <div class="section" v-for="row in layout.rows" :key="row">
-                <div class="seat-island">
-                    <div class="seat-row">
-                        <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-l-' + s)}"
-                            v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-l-${s}`" @drop="drop"
-                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
-                            {{
-                            getNameById(occupiedSeats[row + '-seat-l-l-' + s]) }}</div>
-                    </div>
-                    <div class="tableLarge"></div>
-                    <div class="seat-row">
-                        <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-r-' + s)}"
-                            v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-r-${s}`" @drop="drop"
-                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
-                            {{
-                            getNameById(occupiedSeats[row + '-seat-l-r-' + s]) }}</div>
-                    </div>
-                </div>
+                <div class="managerSeat" :class="{occupied: isOccupied(row + '-seat-m')}"
+                    :id="`${row}-seat-m`" :draggable="isOccupied(row + '-seat-m')" @drop="drop" @dragover.prevent
+                    @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
+                    @dragstart="dragStartSeat($event)">
+                    {{
+                    getNameById(occupiedSeats[row + '-seat-m']) }}</div>
                 <div class="seat-island">
                     <div class="seat-row">
                         <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-l-' + s)}"
-                            v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-l-${s}`" @drop="drop"
-                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                            v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-l-${s}`"
+                            :draggable="isOccupied(row + '-seat-s-l-' + s)" @drop="drop" @dragover.prevent
+                            @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
+                            @dragstart="dragStartSeat($event)">
                             {{
                             getNameById(occupiedSeats[row + '-seat-s-l-' + s]) }}</div>
                     </div>
                     <div class="tableSmall"></div>
                     <div class="seat-row">
                         <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-r-' + s)}"
-                            v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-r-${s}`" @drop="drop"
-                            @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent>
+                            v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-r-${s}`"
+                            :draggable="isOccupied(row + '-seat-s-r-' + s)" @drop="drop" @dragover.prevent
+                            @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
+                            @dragstart="dragStartSeat($event)">
                             {{
                             getNameById(occupiedSeats[row + '-seat-s-r-' + s]) }}</div>
+                    </div>
+                </div>
+                <div class="seat-island">
+                    <div class="seat-row">
+                        <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-l-' + s)}"
+                            v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-l-${s}`"
+                            :draggable="isOccupied(row + '-seat-l-l-' + s)" @drop="drop" @dragover.prevent
+                            @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
+                            @dragstart="dragStartSeat($event)">
+                            {{
+                            getNameById(occupiedSeats[row + '-seat-l-l-' + s]) }}</div>
+                    </div>
+                    <div class="tableLarge"></div>
+                    <div class="seat-row">
+                        <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-r-' + s)}"
+                            v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-r-${s}`"
+                            :draggable="isOccupied(row + '-seat-l-r-' + s)" @drop="drop" @dragover.prevent
+                            @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
+                            @dragstart="dragStartSeat($event)">
+                            {{
+                            getNameById(occupiedSeats[row + '-seat-l-r-' + s]) }}</div>
                     </div>
                 </div>
             </div>
@@ -126,7 +157,7 @@
 
         <h2>Employees</h2>
         <div class="section-row">
-            <input type="text" v-model="keyword" placeholder="名前をいれてね(漢字)" style="margin-bottom: 5px" >
+            <input type="text" v-model="keyword" placeholder="名前をいれてね(漢字)" style="margin-bottom: 5px">
         </div>
         <div class="section-row">
             <div v-for="employee in filteredEmployees" class="box" :class="{ seated: isSeated(employee.employeeId)}"
@@ -137,7 +168,8 @@
 
         <h2>Actions</h2>
         <div class="section-row">
-            <button type="button" class="btn btn-primary btn-lg" @click="resetAssign" style="margin-right: 10px;">Reset</button>
+            <button type="button" class="btn btn-primary btn-lg" @click="resetAssign"
+                style="margin-right: 10px;">Reset</button>
             <button type="button" class="btn btn-secondary btn-lg" @click="randomAssign">Random</button>
         </div>
     </div>
@@ -267,22 +299,37 @@
             },
             computed: {
                 filteredEmployees() {
-                    var filteredEmployeesObj = {};  // 空のオブジェクトを作成
-                    var count = 0; // カウント用の変数を用意
+                    var sortedEmployees = {};    //ソート結果格納用のオブジェクト
+                    var filteredEmployees = {};  // 検索結果格納用のオブジェクト
+                    var count = 0; // カウント
+                    var keywordCut = this.keyword.substr(0, 10); //検索用文字列カット
 
+                    //まず着席していない社員を格納
                     for (var key in this.employees) {
                         var employee = this.employees[key];
-
-                        if (employee.name.indexOf(this.keyword) !== -1) {
-                            if (count >= 15) { // 既に10人選択済みの場合はループを抜ける
-                                break;
-                            }
-
-                            filteredEmployeesObj[key] = employee;  // キーとアイテムをオブジェクトに追加
-                            count++; // カウントを増やす
+                        if (!this.isSeated(employee.employeeId)) {
+                            sortedEmployees[key] = employee;
                         }
                     }
-                    return filteredEmployeesObj;  // オブジェクトを返す
+                    //次に着席している社員を格納
+                    for (var key in this.employees) {
+                        var employee = this.employees[key];
+                        if (this.isSeated(employee.employeeId)) {
+                            sortedEmployees[key] = employee;
+                        }
+                    }
+                    //ソート済み社員から検索
+                    for (var key in sortedEmployees) {
+                        var employee = sortedEmployees[key];
+                        if (employee.name.indexOf(keywordCut) !== -1) {
+                            if (count >= 15) {
+                                break;
+                            }
+                            filteredEmployees[key] = employee;
+                            count++;
+                        }
+                    }
+                    return filteredEmployees;  // オブジェクトを返す
                 }
             },
 
@@ -292,6 +339,11 @@
                     //ドラッグ箱の初期化
                     this.draggedItem = '';
                     this.draggedItem = employee.employeeId;
+                },
+                //[イベント]ドラッグ開始（座席）
+                dragStartSeat(event) {
+                    this.draggedItem = '';
+                    this.draggedItem = this.occupiedSeats[event.target.id];
                 },
                 //[イベント]座席にドロップ
                 drop(event) {
@@ -323,6 +375,7 @@
                     // すべての席を配列に格納
                     const allSeats = [];
                     for (let row = 1; row <= this.layout.rows; row++) {
+                            allSeats.push(`${row}-seat-m`)
                         for (let s = 1; s <= this.layout['large-seats']; s++) {
                             allSeats.push(`${row}-seat-l-l-${s}`);
                             allSeats.push(`${row}-seat-l-r-${s}`);
@@ -357,9 +410,14 @@
                 },
                 //座席を社員に割り当てる
                 assignSeat(seatId, employeeId) {
-                    if (!this.isOccupied(seatId) && !this.isSeated(employeeId)) {
-                        this.occupiedSeats[seatId] = employeeId;
+                    if (this.isOccupied(seatId)) {
+                        delete this.occupiedSeats[seatId];
                     }
+                    if (this.isSeated(employeeId)) {
+                        const aaa = Object.keys(this.occupiedSeats).find(key => this.occupiedSeats[key] === employeeId);
+                        delete this.occupiedSeats[aaa];
+                    }
+                    this.occupiedSeats[seatId] = employeeId;
                 },
                 //割り当て削除
                 unassignSeat(seatId) {
