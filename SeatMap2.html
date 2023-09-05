@@ -46,7 +46,7 @@
 
         .managerSeat {
             width: 68px;
-            height: 50px;
+            height: 40px;
             background-color: #ccc;
             margin: auto;
             margin-bottom: 4px;
@@ -59,6 +59,10 @@
 
         .managerSeat.occupied {
             background-color: #fff;
+        }
+
+        .managerSeat.hidden {
+            visibility: hidden;
         }
 
         .tableLarge {
@@ -107,7 +111,13 @@
         <h2 class="be-secondary">Seats</h2>
         <div class="section-row">
             <div class="section" v-for="row in layout.rows" :key="row">
-                <div class="managerSeat" :class="{occupied: isOccupied(row + '-seat-m')}"
+                <div class="managerSeat" :class="{occupied: isOccupied(row + '-seat-m'), hidden: !layout['generalManager-seats'].some((element) => element === row)}"
+                    :id="`${row}-seat-m`" :draggable="isOccupied(row + '-seat-m')" @drop="drop" @dragover.prevent
+                    @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
+                    @dragstart="dragStartSeat($event)">
+                    {{
+                    getNameById(occupiedSeats[row + '-seat-m']) }}</div>
+                <div class="managerSeat" :class="{occupied: isOccupied(row + '-seat-m'), hidden: !layout['manager-seats'].some((element) => element === row)}"
                     :id="`${row}-seat-m`" :draggable="isOccupied(row + '-seat-m')" @drop="drop" @dragover.prevent
                     @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
                     @dragstart="dragStartSeat($event)">
@@ -182,9 +192,11 @@
             data() {
                 return {
                     layout: {
-                        'rows': 8, // 島の数
+                        'rows': 8, // (島×2)の列の数
                         'small-seats': 3, // 小テーブルの座席数（片側）
                         'large-seats': 5, // 大テーブルの座席数（片側）
+                        'manager-seats' : [2, 5], //課長席が存在する行
+                        'generalManager-seats' : [4, 7],//部長席が存在する行
                     },
                     draggedItem: '',
                     employees: {
