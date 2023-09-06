@@ -68,16 +68,27 @@
         .tableLarge {
             width: 70px;
             height: 278px;
-            background-color: #ccc;
+            background-color: #fff;
             border: 1px solid #000;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
         }
 
         .tableSmall {
             width: 70px;
             height: 164px;
-            background-color: #ccc;
+            background-color: #fff;
             border: 1px solid #000;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
         }
+
 
         .seat-island {
             display: flex;
@@ -133,7 +144,7 @@
                             {{
                             getNameById(occupiedSeats[row + '-seat-s-l-' + s]) }}</div>
                     </div>
-                    <div class="tableSmall"></div>
+                    <div class="tableSmall">{{tableDepartment[row+'S']}}</div>
                     <div class="seat-row">
                         <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-r-' + s)}"
                             v-for="s in layout['small-seats']" :key="s" :id="`${row}-seat-s-r-${s}`"
@@ -154,7 +165,7 @@
                             {{
                             getNameById(occupiedSeats[row + '-seat-l-l-' + s]) }}</div>
                     </div>
-                    <div class="tableLarge"></div>
+                    <div class="tableLarge">{{tableDepartment[row+'L']}}</div>
                     <div class="seat-row">
                         <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-r-' + s)}"
                             v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-r-${s}`"
@@ -277,7 +288,6 @@
                         user527: { employeeId: '527', name: '後小路' },
                         user529: { employeeId: '529', name: '荻野' },
                         user530: { employeeId: '530', name: '堀田' },
-                        user533: { employeeId: '533', name: '伊東' },
                         user535: { employeeId: '535', name: '斉藤' },
                         user536: { employeeId: '536', name: '濱井' },
                         user537: { employeeId: '537', name: '飯沼' },
@@ -291,7 +301,6 @@
                         user550: { employeeId: '550', name: '井川' },
                         user551: { employeeId: '551', name: '鈴木' },
                         user552: { employeeId: '552', name: '池田' },
-                        user553: { employeeId: '553', name: '立川' },
                         user554: { employeeId: '554', name: '長友' },
                         user555: { employeeId: '555', name: '梅田' },
                         user556: { employeeId: '556', name: '加藤' },
@@ -304,8 +313,27 @@
                         user564: { employeeId: '564', name: '佐藤' },
                         user565: { employeeId: '565', name: '宮川' },
                         user568: { employeeId: '568', name: '木寺' },
+                        user533: { employeeId: '533', name: '伊東' },
 
-
+                    },
+                    tableDepartment: {
+                        // テーブルID : 部署名
+                        "1S" : "MTGスペース",
+                        "1L" : "MTGスペース",
+                        "2S" : "SW開発課1G",
+                        "2L" : "システム開発課",
+                        "3S" : "営業本部 セールスサポートG",
+                        "3L" : "SW開発課1G",
+                        "4S" : "営業本部",
+                        "4L" : "SW開発課2G",
+                        "5S" : "営業本部 人材開発G",
+                        "5L" : "プロダクト課",
+                        "6S" : "営業本部 人材開発G",
+                        "6L" : "顧客課1G 2G 3G",
+                        "7S" : "ITサポート部",
+                        "7L" : "顧客課4G 5G",
+                        "8S" : "ITサポート部 社外",
+                        "8L" : "ITサポート部 社外",
                     },
                     occupiedSeats: {
                         // seatId : employeeId
