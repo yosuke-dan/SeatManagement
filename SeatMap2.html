@@ -21,7 +21,7 @@
             text-align: center;
             vertical-align: middle;
             line-height: 100px;
-            overflow:   hidden;
+            overflow: hidden;
         }
 
         .box.seated {
@@ -37,7 +37,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow:   hidden;
+            overflow: hidden;
         }
 
         .seat.occupied {
@@ -54,7 +54,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow:   hidden;
+            overflow: hidden;
         }
 
         .managerSeat.occupied {
@@ -111,16 +111,16 @@
         <h2 class="be-secondary">Seats</h2>
         <div class="section-row">
             <div class="section" v-for="row in layout.rows" :key="row">
-                <div class="managerSeat" :class="{occupied: isOccupied(row + '-seat-m'), hidden: !layout['generalManager-seats'].some((element) => element === row)}"
+                <div class="managerSeat"
+                    :class="{occupied: isOccupied(row + '-seat-m'), hidden: !layout['generalManager-seats'].some((element) => element === row)}"
                     :id="`${row}-seat-m`" :draggable="isOccupied(row + '-seat-m')" @drop="drop" @dragover.prevent
-                    @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
-                    @dragstart="dragStartSeat($event)">
+                    @dragleave.prevent @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)">
                     {{
                     getNameById(occupiedSeats[row + '-seat-m']) }}</div>
-                <div class="managerSeat" :class="{occupied: isOccupied(row + '-seat-m'), hidden: !layout['manager-seats'].some((element) => element === row)}"
+                <div class="managerSeat"
+                    :class="{occupied: isOccupied(row + '-seat-m'), hidden: !layout['manager-seats'].some((element) => element === row)}"
                     :id="`${row}-seat-m`" :draggable="isOccupied(row + '-seat-m')" @drop="drop" @dragover.prevent
-                    @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
-                    @dragstart="dragStartSeat($event)">
+                    @dragleave.prevent @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)">
                     {{
                     getNameById(occupiedSeats[row + '-seat-m']) }}</div>
                 <div class="seat-island">
@@ -181,9 +181,10 @@
 
         <h2>Actions</h2>
         <div class="section-row">
-            <button type="button" class="btn btn-primary btn-lg" @click="resetAssign"
-                style="margin-right: 10px;">Reset</button>
+            <button type="button" class="btn btn-primary btn-lg" @click="resetAssign">Reset</button>
             <button type="button" class="btn btn-secondary btn-lg" @click="randomAssign">Random</button>
+            <button type="button" class="btn btn-primary btn-lg" @click="exportToFile">Export</button>
+            <input type="file" @change="importFromFile">
         </div>
     </div>
 
@@ -195,8 +196,8 @@
                         'rows': 8, // (島×2)の列の数
                         'small-seats': 3, // 小テーブルの座席数（片側）
                         'large-seats': 5, // 大テーブルの座席数（片側）
-                        'manager-seats' : [2, 5], //課長席が存在する行
-                        'generalManager-seats' : [4, 7],//部長席が存在する行
+                        'manager-seats': [2, 5], //課長席が存在する行
+                        'generalManager-seats': [4, 7],//部長席が存在する行
                     },
                     draggedItem: '',
                     employees: {
@@ -381,6 +382,7 @@
                     }
                     this.keyword = '';
                 },
+                //[イベント]ランダムボタン押下
                 randomAssign() {
                     if (!confirm('ランダムに配置して良い？')) return;
 
@@ -390,7 +392,7 @@
                     // すべての席を配列に格納
                     const allSeats = [];
                     for (let row = 1; row <= this.layout.rows; row++) {
-                            allSeats.push(`${row}-seat-m`)
+                        allSeats.push(`${row}-seat-m`)
                         for (let s = 1; s <= this.layout['large-seats']; s++) {
                             allSeats.push(`${row}-seat-l-l-${s}`);
                             allSeats.push(`${row}-seat-l-r-${s}`);
@@ -413,6 +415,27 @@
                         if (seat) {
                             this.assignSeat(seat, this.employees[employeeIds[i]].employeeId);
                         }
+                    }
+                },
+                //[イベント]ファイル出力ボタン押下
+                exportToFile() {
+                    const dataStr = JSON.stringify(this.occupiedSeats);
+                    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', 'occupied-seats.json');
+                    linkElement.click();
+                },
+                //[イベント]ファイル取込ボタン押下
+                importFromFile(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const data = JSON.parse(e.target.result);
+                            this.occupiedSeats = data;
+                        };
+                        reader.readAsText(file);
                     }
                 },
                 // 配列をシャッフルするユーティリティ関数
@@ -441,18 +464,16 @@
                 //座席の占有チェック
                 isOccupied(seatId) {
                     if (this.occupiedSeats[seatId]) {
-                        //alert('その席にはすでに誰かが座っている');
-                        return true; //その席にはすでに誰かが座っている
+                        return true; //占有あり
                     }
-                    return false; //OK
+                    return false; //空席
                 },
                 //社員に座席が割り当てられているかチェック
                 isSeated(employeeId) {
                     if (Object.keys(this.occupiedSeats).find(key => this.occupiedSeats[key] === employeeId)) {
-                        //alert('その人はすでに別の席に座っている');
-                        return true; //その人はすでに別の席に座っている
+                        return true; //着席済み
                     }
-                    return false; //OK
+                    return false; //未割り当て
                 },
                 //社員番号から社員名を取得
                 getNameById(employeeId) {
