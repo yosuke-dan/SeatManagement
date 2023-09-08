@@ -66,27 +66,29 @@
         }
 
         .tableLarge {
+            white-space: pre-line;
             width: 70px;
             height: 278px;
             background-color: #fff;
             border: 1px solid #000;
             writing-mode: vertical-rl;
-            text-orientation: upright;
             display: flex;
             align-items: center;
             overflow: hidden;
+            padding: 10px;
         }
 
         .tableSmall {
+            white-space: pre-line;
             width: 70px;
             height: 164px;
             background-color: #fff;
             border: 1px solid #000;
             writing-mode: vertical-rl;
-            text-orientation: upright;
             display: flex;
             align-items: center;
             overflow: hidden;
+            padding: 10px;
         }
 
 
@@ -155,7 +157,7 @@
                             getNameById(occupiedSeats[row + '-seat-s-r-' + s]) }}</div>
                     </div>
                 </div>
-                <div class="seat-island">
+                <div class="seat-island" v-if="row != 1">
                     <div class="seat-row">
                         <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-l-' + s)}"
                             v-for="s in layout['large-seats']" :key="s" :id="`${row}-seat-l-l-${s}`"
@@ -181,7 +183,8 @@
 
         <h2>Employees</h2>
         <div class="section-row">
-            <input type="text" v-model="keyword" placeholder="名前をいれてね(漢字)" style="margin-bottom: 5px">
+            <label>社員検索：</label>
+            <input type="text" v-model="keyword" placeholder="名前をいれてね(漢字)" style="margin:5px">
         </div>
         <div class="section-row">
             <div v-for="employee in filteredEmployees" class="box" :class="{ seated: isSeated(employee.employeeId)}"
@@ -192,11 +195,14 @@
 
         <h2>Actions</h2>
         <div class="section-row">
-            <button type="button" class="btn btn-primary btn-lg" @click="resetAssign">Reset</button>
-            <button type="button" class="btn btn-secondary btn-lg" @click="randomAssign">Random</button>
-            <button type="button" class="btn btn-primary btn-lg" @click="exportToFile">Export</button>
-            <input type="file" @change="importFromFile">
+            <button type="button" class="btn btn-primary btn-lg" style="margin:5px" @click="resetAssign">Reset</button>
+            <button type="button" class="btn btn-secondary btn-lg" style="margin:5px" @click="randomAssign">Random</button>
+            <button type="button" class="btn btn-primary btn-lg" style="margin:5px" @click="exportToFile">Export</button>
+            <input type="file" style="margin:5px" @change="importFromFile">
         </div>
+
+        <h4 style="padding-top: 20px;">ご意見・ご感想・ご要望・ソースレビューは下記リンクよりお願いいたします。</h4>
+        <a href="https://forms.gle/Wm25VHszoaMmLXKS7" target="_blank">ここをクリック</a>
     </div>
 
     <script>
@@ -204,11 +210,11 @@
             data() {
                 return {
                     layout: {
-                        'rows': 8, // (島×2)の列の数
+                        'rows': 9, // (島×2)の列の数
                         'small-seats': 3, // 小テーブルの座席数（片側）
                         'large-seats': 5, // 大テーブルの座席数（片側）
-                        'manager-seats': [2, 5], //課長席が存在する行
-                        'generalManager-seats': [4, 7],//部長席が存在する行
+                        'manager-seats': [1, 3, 6], //課長席が存在する行
+                        'generalManager-seats': [5, 8],//部長席が存在する行
                     },
                     draggedItem: '',
                     employees: {
@@ -318,22 +324,23 @@
                     },
                     tableDepartment: {
                         // テーブルID : 部署名
-                        "1S" : "MTGスペース",
-                        "1L" : "MTGスペース",
-                        "2S" : "SW開発課1G",
-                        "2L" : "システム開発課",
-                        "3S" : "営業本部 セールスサポートG",
-                        "3L" : "SW開発課1G",
-                        "4S" : "営業本部",
-                        "4L" : "SW開発課2G",
-                        "5S" : "営業本部 人材開発G",
-                        "5L" : "プロダクト課",
-                        "6S" : "営業本部 人材開発G",
-                        "6L" : "顧客課1G 2G 3G",
-                        "7S" : "ITサポート部",
-                        "7L" : "顧客課4G 5G",
-                        "8S" : "ITサポート部 社外",
-                        "8L" : "ITサポート部 社外",
+                        "1S" : "管理部",
+                        "2S" : "ＭＴＧスペース",
+                        "2L" : "ＭＴＧスペース",
+                        "3S" : "システム開発課",
+                        "3L" : "ＳＷ開発課１Ｇ",
+                        "4S" : "営業本部\nセールスサポートＧ",
+                        "4L" : "ＳＷ開発課１Ｇ",
+                        "5S" : "営業本部",
+                        "5L" : "ＳＷ開発課２Ｇ",
+                        "6S" : "営業本部\n人材開発Ｇ",
+                        "6L" : "プロダクト課",
+                        "7S" : "営業本部\n人材開発Ｇ",
+                        "7L" : "顧客課１Ｇ・２Ｇ・３Ｇ",
+                        "8S" : "ＩＴサポート部",
+                        "8L" : "顧客課４Ｇ・５Ｇ",
+                        "9S" : "ＩＴサポート部\n社外",
+                        "9L" : "ＩＴサポート部\n社外",
                     },
                     occupiedSeats: {
                         // seatId : employeeId
