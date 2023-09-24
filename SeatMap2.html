@@ -114,6 +114,15 @@
       justify-content: left;
       align-items: left;
     }
+
+    .form-item {
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+    }
   </style>
 </head>
 
@@ -122,7 +131,7 @@
     <h1 class="bg-secondary text-white display-3 px-2 align-middle pb-3">
       Seat Management
     </h1>
-    <h2 class="be-secondary">Seats</h2>
+    <h2>Seats</h2>
     <div class="section-row">
       <!--管理部-->
       <div class="section">
@@ -141,7 +150,7 @@
               {{ getNameById(occupiedSeats['hr' + '-seat-s-l-' + s]) }}
             </div>
           </div>
-          <div class="tableSmall">{{tableDepartment['hr'+'S']}}</div>
+          <div class="tableSmall">管理部</div>
           <div class="seat-row">
             <div class="seat" :class="{occupied: isOccupied('hr' + '-seat-s-r-' + s)}"
               v-for="s in layout['small-seats']" :key="s" :id="`hr-seat-s-r-${s}`"
@@ -229,14 +238,21 @@
     </div>
 
     <h2>Employees</h2>
-    <div class="section-row">
+    <div class="section-row" style="margin-bottom: 10px;">
       <label>名前で検索：</label>
-      <input type="text" v-model="keyword" placeholder="名前をいれてね(漢字)" style="margin: 5px" />
+      <input type="text" v-model="keyword" placeholder="漢字or全角カナ" style="margin: 5px" />
       <label>部署で検索：</label>
       <select v-model="selectedDepartment">
         <option value="">部署を選択してください</option>
         <option v-for="department in departmentList" :key="department" :value="department">
           {{ department }}
+        </option>
+      </select>
+      <label>役職で検索：</label>
+      <select v-model="selectedPosition">
+        <option value="">役職を選択してください</option>
+        <option v-for="position in positionList" :key="position" :value="position">
+          {{ position }}
         </option>
       </select>
     </div>
@@ -252,7 +268,7 @@
       <button type="button" class="btn btn-primary btn-lg" style="margin: 5px" @click="resetAssign">
         Reset
       </button>
-      <button type="button" class="btn btn-secondary btn-lg" style="margin: 5px" @click="randomAssign">
+      <button type="button" class="btn btn-primary btn-lg" style="margin: 5px" @click="randomAssign">
         Random
       </button>
       <button type="button" class="btn btn-primary btn-lg" style="margin: 5px" @click="exportToFile">
@@ -271,7 +287,27 @@
       <button type="button" class="btn btn-primary btn-lg" style="margin: 5px" @click="axiosTest4">
         Load from DB
       </button>
+      <button type="button" class="btn btn-primary btn-lg" style="margin: 5px" @click="toggleLogin">
+        Administrator Login
+      </button>
     </div>
+    <div v-if="showLoginForm">
+      <h2>Login</h2>
+      <div class="login">
+        <div class="form-item">
+          <label for="username">username</label>
+          <input id="username" autocomplete="off" type="text" v-model="username">
+        </div>
+        <div class="form-item">
+          <label for="password">password</label>
+          <input id="password" autocomplete="off" type="password" v-model="password">
+        </div>
+        <div class="form-item">
+          <button type="button" class="btn btn-primary btn-lg" style="margin: 5px" @click="login">Login</button>
+        </div>
+      </div>
+    </div>
+
 
     <h4 style="padding-top: 20px">
       ご意見・ご感想・ご要望・ソースレビューは下記リンクよりお願いいたします。
@@ -296,7 +332,7 @@
           },
           tableDepartment: {
             // テーブルID : 部署名
-            "hrS": "管理部",
+            //"hrS": "管理部",
             "1S": "システム開発課",
             "1L": "ＳＷ開発課１Ｇ",
             "2S": "営業本部\nセールスサポートＧ",
@@ -315,8 +351,14 @@
           occupiedSeats: {
             // seatId : emp_code
           },
-          keyword: "",
-          selectedDepartment: ""
+          keyword: "", // 社員検索用キーワード
+          selectedDepartment: "", // 部署プルダウン選択値
+          selectedPosition: "", // 役職プルダウン選択値
+          showLoginForm: false, // ログインフォーム表示切り替え
+          username: "",
+          password: "",
+          token: null
+
         };
       },
       computed: {
@@ -328,6 +370,7 @@
           var count = 0;
           var keywordCut = this.keyword.substr(0, 10);
           var department = this.selectedDepartment;
+          var position = this.selectedPosition;
           console.log(department);
 
           for (var key in this.employees) {
@@ -344,10 +387,13 @@
           for (var i = 0; i < sortedEmployees.length; i++) {
             if (
               (sortedEmployees[i].last_name.indexOf(keywordCut) !== -1
-                || sortedEmployees[i].first_name.indexOf(keywordCut) !== -1)
-              && sortedEmployees[i].department === department
+                || sortedEmployees[i].first_name.indexOf(keywordCut) !== -1
+                || sortedEmployees[i].last_name_yomi.indexOf(keywordCut) !== -1
+                || sortedEmployees[i].first_name_yomi.indexOf(keywordCut) !== -1)
+              && (department === "" || sortedEmployees[i].department === department)
+              && (position === "" || sortedEmployees[i].position === position)
             ) {
-              if (count >= 15) {
+              if (count >= 16) {
                 break;
               }
               filteredEmployees.push(sortedEmployees[i]);
@@ -363,8 +409,17 @@
             }
             return acc;
           }, []).sort();
-          console.log(departmentList);
           return departmentList;
+        },
+        positionList() {
+          const positionList = Object.values(this.employees).reduce((acc, emp) => {
+            if (emp.position && !acc.includes(emp.position)) {
+              acc.push(emp.position);
+            }
+            return acc;
+          }, []).sort();
+          console.log(positionList);
+          return positionList;
         }
       },
 
@@ -542,6 +597,9 @@
         },
         //[イベント]Axios3ボタン押下 マッピングをDBに保存する
         async axiosTest3() {
+          if(this.token === null){
+            return alert('まずログインしてくれや')
+          }
           const obj = this.occupiedSeats
           let result = Object.entries(obj).map(([seatId, emp_code]) => {
             return { seatId, emp_code };
@@ -553,17 +611,17 @@
               method: "post",
               url: "http://localhost:5000/seatmaps",
               data: target,
-              //headers: {
-              //Authorization: "Bearer YOUR_TOKEN",
-              //Accept: "application/json",
-              // 他のヘッダー...
-              //},
+              headers: {
+              Authorization: `Bearer ${this.token}`,
+              Accept: "application/json"
+              },
             });
             console.log(response.data);
           } catch (error) {
             console.error("Error:", error);
           }
         },
+        //[イベント]マッピングをDBから取得
         async axiosTest4() {
           const response = await axios
             .get(
@@ -576,6 +634,37 @@
               console.error("An error occurred:", error);
             });
         },
+        //[イベント]ログイン画面表示切替
+        toggleLogin() {
+          this.showLoginForm = !this.showLoginForm
+          console.log(this.showLoginForm);
+        },
+        //[イベント]ログイン
+        async login() {
+          try {
+            const response = await axios({
+              method: "post",
+              url: "http://localhost:5000/token",
+              data: new URLSearchParams({
+                grant_type: '',
+                username: this.username,
+                password: this.password,
+                scope: '',
+                client_id: '',
+                client_secret: ''
+              }), // URLSearchParamsはapplication/x-www-form-urlencoded用のフォーマットに変換します
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+            });
+            this.token = response.data.access_token;
+            confirm("login succes!")
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        },
+
         // 配列をシャッフルするユーティリティ関数
         shuffleArray(array) {
           for (let i = array.length - 1; i > 0; i--) {
