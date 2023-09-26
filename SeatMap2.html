@@ -155,24 +155,29 @@
         <div class="managerSeat"></div>
         <div class="managerSeat" :class="{occupied: isOccupied('hr' + '-seat-m'), visible:true}" :id="`hr-seat-m`"
           :draggable="isOccupied('hr' + '-seat-m')" @drop="drop" @dragover.prevent @dragleave.prevent
-          @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)">
+          @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)"
+          :title="getInfoById(occupiedSeats['hr' + '-seat-m'])">
           {{ getNameById(occupiedSeats['hr' + '-seat-m']) }}
         </div>
         <div class="seat-island">
+          <!--左-->
           <div class="seat-row">
             <div class="seat" :class="{occupied: isOccupied('hr' + '-seat-s-l-' + s)}"
               v-for="s in layout['small-seats']" :key="s" :id="`hr-seat-s-l-${s}`"
               :draggable="isOccupied('hr' + '-seat-s-l-' + s)" @drop="drop" @dragover.prevent @dragleave.prevent
-              @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)">
+              @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)"
+              :title="getInfoById(occupiedSeats['hr' + '-seat-s-l-' + s])">
               {{ getNameById(occupiedSeats['hr' + '-seat-s-l-' + s]) }}
             </div>
           </div>
           <div class="tableSmall">管理部</div>
+          <!--右-->
           <div class="seat-row">
             <div class="seat" :class="{occupied: isOccupied('hr' + '-seat-s-r-' + s)}"
               v-for="s in layout['small-seats']" :key="s" :id="`hr-seat-s-r-${s}`"
               :draggable="isOccupied('hr' + '-seat-s-r-' + s)" @drop="drop" @dragover.prevent @dragleave.prevent
-              @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)">
+              @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)"
+              :title="getInfoById(occupiedSeats['hr' + '-seat-s-r-' + s])">
               {{ getNameById(occupiedSeats['hr' + '-seat-s-r-' + s]) }}
             </div>
           </div>
@@ -195,14 +200,16 @@
         <div class="managerSeat"
           :class="{occupied: isOccupied(row + '-seat-gm'), visible: layout['generalManager-seats'].some((element) => element === row)}"
           :id="`${row}-seat-gm`" :draggable="isOccupied(row + '-seat-gm')" @drop="drop" @dragover.prevent
-          @dragleave.prevent @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)">
+          @dragleave.prevent @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)"
+          :title="getInfoById(occupiedSeats[row + '-seat-gm'])">
           {{ getNameById(occupiedSeats[row + '-seat-gm']) }}
         </div>
         <!--課長席-->
         <div class="managerSeat"
           :class="{occupied: isOccupied(row + '-seat-m'), visible: layout['manager-seats'].some((element) => element === row)}"
           :id="`${row}-seat-m`" :draggable="isOccupied(row + '-seat-m')" @drop="drop" @dragover.prevent
-          @dragleave.prevent @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)">
+          @dragleave.prevent @contextmenu="leave" @contextmenu.prevent @dragstart="dragStartSeat($event)"
+          :title="getInfoById(occupiedSeats[row + '-seat-m'])">
           {{ getNameById(occupiedSeats[row + '-seat-m']) }}
         </div>
         <!--小さい島-->
@@ -212,7 +219,7 @@
             <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-l-' + s)}" v-for="s in layout['small-seats']"
               :key="s" :id="`${row}-seat-s-l-${s}`" :draggable="isOccupied(row + '-seat-s-l-' + s)" @drop="drop"
               @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
-              @dragstart="dragStartSeat($event)">
+              @dragstart="dragStartSeat($event)" :title="getInfoById(occupiedSeats[row + '-seat-s-l-' + s])">
               {{ getNameById(occupiedSeats[row + '-seat-s-l-' + s]) }}
             </div>
           </div>
@@ -223,7 +230,7 @@
             <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-r-' + s)}" v-for="s in layout['small-seats']"
               :key="s" :id="`${row}-seat-s-r-${s}`" :draggable="isOccupied(row + '-seat-s-r-' + s)" @drop="drop"
               @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
-              @dragstart="dragStartSeat($event)">
+              @dragstart="dragStartSeat($event)" :title="getInfoById(occupiedSeats[row + '-seat-s-r-' + s])">
               {{ getNameById(occupiedSeats[row + '-seat-s-r-' + s]) }}
             </div>
           </div>
@@ -235,7 +242,7 @@
             <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-l-' + s)}" v-for="s in layout['large-seats']"
               :key="s" :id="`${row}-seat-l-l-${s}`" :draggable="isOccupied(row + '-seat-l-l-' + s)" @drop="drop"
               @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
-              @dragstart="dragStartSeat($event)">
+              @dragstart="dragStartSeat($event)" :title="getInfoById(occupiedSeats[row + '-seat-l-l-' + s])">
               {{ getNameById(occupiedSeats[row + '-seat-l-l-' + s]) }}
             </div>
           </div>
@@ -246,7 +253,7 @@
             <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-r-' + s)}" v-for="s in layout['large-seats']"
               :key="s" :id="`${row}-seat-l-r-${s}`" :draggable="isOccupied(row + '-seat-l-r-' + s)" @drop="drop"
               @dragover.prevent @dragleave.prevent @contextmenu="leave" @contextmenu.prevent
-              @dragstart="dragStartSeat($event)">
+              @dragstart="dragStartSeat($event)" :title="getInfoById(occupiedSeats[row + '-seat-l-r-' + s])">
               {{ getNameById(occupiedSeats[row + '-seat-l-r-' + s]) }}
             </div>
           </div>
@@ -272,11 +279,13 @@
           {{ position }}
         </option>
       </select>
+      <button @click="resetSearchCondition">検索条件リセット</button>
     </div>
     <div class="section-row">
       <div v-for="employee in filteredEmployees.slice(0, 16)" class="box"
-        :class="{ seated: isSeated(employee.emp_code)}" :draggable="true" @dragstart="dragStart($event, employee)">
-        {{ employee.last_name }}
+        :class="{ seated: isSeated(employee.emp_code)}" :draggable="true" @dragstart="dragStart($event, employee)"
+        :title="getInfoById(employee.emp_code)">
+        {{ employee.last_name+' '+employee.first_name }}
       </div>
       <div v-if="filteredEmployees.length>15" class="box">{{"+"+(filteredEmployees.length-16)}}</div>
     </div>
@@ -325,15 +334,13 @@
         </div>
       </div>
     </div>
-    <button @click="showDialog = true">ダイアログを開く</button>
 
     <!-- ダイアログ -->
     <div v-if="showDialog" class="dialog">
-      <input type="text" v-model="text">
-      <button @click="updateText">更新</button>
+      <input type="text" v-model="tableNameText">
+      <button @click="changeTableName">変更</button>
       <button @click="showDialog = false">閉じる</button>
     </div>
-
 
     <h4 style="padding-top: 20px">
       ご意見・ご感想・ご要望・ソースレビューは下記リンクよりお願いいたします。
@@ -377,15 +384,20 @@
           occupiedSeats: {
             // seatId : emp_code
           },
+          //社員検索用
           keyword: "", // 社員検索用キーワード
           selectedDepartment: "", // 部署プルダウン選択値
           selectedPosition: "", // 役職プルダウン選択値
-          showLoginForm: false, // ログインフォーム表示切り替え
+          //ログイン関連
+          showLoginForm: false, // ログインフォーム表示切り替え          
           username: "",
           password: "",
           token: null,
-          showDialog: false
-
+          //テーブル名変更ダイアログ
+          showDialog: false,
+          tableNameText: "",
+          selectedTableId: "",
+          showTooltip: false
         };
       },
       computed: {
@@ -477,7 +489,14 @@
         },
         //[イベント]テーブルクリック
         tableDialog(event) {
-          const tableId = event
+          this.selectedTableId = event.target.id;
+          this.tableNameText = this.tableDepartment[this.selectedTableId];
+          this.showDialog = true;
+        },
+        //[イベント]テーブル名変更ボタンクリック
+        changeTableName() {
+          this.tableDepartment[this.selectedTableId] = this.tableNameText;
+          this.showDialog = false
         },
         //[イベント]リセットボタン押下
         resetAssign() {
@@ -757,7 +776,25 @@
           // オブジェクトが見つかればその名前（last_name）を返す、見つからなければundefinedを返す
           return employee ? employee.last_name : undefined;
         },
+        getInfoById(emp_code) {
+          const employeesArray = Object.values(this.employees);
+          // find()メソッドで指定したemp_codeと一致するオブジェクトを探す
+          const employee = employeesArray.find(
+            (emp) => emp.emp_code === emp_code
+          );
+          // オブジェクトが見つかればその（氏名\n役職）を返す、見つからなければundefinedを返す
+          return employee ? employee.last_name + ' ' + employee.first_name + '\n' + employee.position + '\n' + employee.department : undefined;
+        },
+        resetSearchCondition(){
+          this.keyword= ""; // 社員検索用キーワード
+          this.selectedDepartment= ""; // 部署プルダウン選択値
+          this.selectedPosition= ""; // 役職プルダウン選択値
+        }
       },
+      created() {
+        this.axiosTest();
+        this.axiosTest4();
+      }
     };
 
     let app = Vue.createApp(appdata);
