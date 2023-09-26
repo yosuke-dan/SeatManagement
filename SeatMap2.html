@@ -78,6 +78,7 @@
       align-items: center;
       overflow: hidden;
       padding: 10px;
+      user-select: none;
     }
 
     .tableSmall {
@@ -91,6 +92,7 @@
       align-items: center;
       overflow: hidden;
       padding: 10px;
+      user-select: none;
     }
 
     .seat-island {
@@ -122,6 +124,21 @@
 
     label {
       display: block;
+    }
+
+    .dialog {
+      padding: 20px;
+      border: 1px solid black;
+      width: 500px;
+      background-color: #fff;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
     }
   </style>
 </head>
@@ -200,7 +217,7 @@
             </div>
           </div>
           <!--小テーブル-->
-          <div class="tableSmall">{{tableDepartment[row+'S']}}</div>
+          <div class="tableSmall" :id="`${row}S`" @click="tableDialog($event)">{{tableDepartment[row+'S']}}</div>
           <!--右-->
           <div class="seat-row">
             <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-r-' + s)}" v-for="s in layout['small-seats']"
@@ -257,10 +274,11 @@
       </select>
     </div>
     <div class="section-row">
-      <div v-for="employee in filteredEmployees" class="box" :class="{ seated: isSeated(employee.emp_code)}"
-        :draggable="true" @dragstart="dragStart($event, employee)">
+      <div v-for="employee in filteredEmployees.slice(0, 16)" class="box"
+        :class="{ seated: isSeated(employee.emp_code)}" :draggable="true" @dragstart="dragStart($event, employee)">
         {{ employee.last_name }}
       </div>
+      <div v-if="filteredEmployees.length>15" class="box">{{"+"+(filteredEmployees.length-16)}}</div>
     </div>
 
     <h2>Actions</h2>
@@ -306,6 +324,14 @@
           <button type="button" class="btn btn-primary btn-lg" style="margin: 5px" @click="login">Login</button>
         </div>
       </div>
+    </div>
+    <button @click="showDialog = true">ダイアログを開く</button>
+
+    <!-- ダイアログ -->
+    <div v-if="showDialog" class="dialog">
+      <input type="text" v-model="text">
+      <button @click="updateText">更新</button>
+      <button @click="showDialog = false">閉じる</button>
     </div>
 
 
@@ -357,7 +383,8 @@
           showLoginForm: false, // ログインフォーム表示切り替え
           username: "",
           password: "",
-          token: null
+          token: null,
+          showDialog: false
 
         };
       },
@@ -393,9 +420,9 @@
               && (department === "" || sortedEmployees[i].department === department)
               && (position === "" || sortedEmployees[i].position === position)
             ) {
-              if (count >= 16) {
-                break;
-              }
+              // if (count >= 16) {
+              //   break;
+              // }
               filteredEmployees.push(sortedEmployees[i]);
               count++;
             }
@@ -448,6 +475,10 @@
           const seatId = event.target.id;
           this.unassignSeat(seatId);
         },
+        //[イベント]テーブルクリック
+        tableDialog(event) {
+          const tableId = event
+        },
         //[イベント]リセットボタン押下
         resetAssign() {
           if (!confirm("リセットして良い？")) return;
@@ -455,6 +486,12 @@
             this.unassignSeat(key);
           }
           this.keyword = "";
+          this.selectedDepartment = "";
+          this.selectedPosition = "";
+          this.showLoginForm = false;
+          this.username = "";
+          this.password = "";
+          //ログイントークンは維持する
         },
         //[イベント]ランダムボタン押下
         randomAssign() {
@@ -597,7 +634,7 @@
         },
         //[イベント]Axios3ボタン押下 マッピングをDBに保存する
         async axiosTest3() {
-          if(this.token === null){
+          if (this.token === null) {
             return alert('まずログインしてくれや')
           }
           const obj = this.occupiedSeats
@@ -612,11 +649,12 @@
               url: "http://localhost:5000/seatmaps",
               data: target,
               headers: {
-              Authorization: `Bearer ${this.token}`,
-              Accept: "application/json"
+                Authorization: `Bearer ${this.token}`,
+                Accept: "application/json"
               },
             });
             console.log(response.data);
+            alert("保存完了");
           } catch (error) {
             console.error("Error:", error);
           }
