@@ -122,23 +122,23 @@
       text-align: center;
     }
 
-    label {
+    label{
       display: block;
     }
 
     .dialog {
       padding: 20px;
-      border: 1px solid black;
+      border: 2px solid black;
       width: 500px;
       background-color: #fff;
       position: fixed;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      display: flex;
       flex-direction: row;
       justify-content: center;
       align-items: center;
+      text-align:center;
     }
   </style>
 </head>
@@ -247,7 +247,7 @@
             </div>
           </div>
           <!--大テーブル-->
-          <div class="tableLarge">{{tableDepartment[row+'L']}}</div>
+          <div class="tableLarge" :id="`${row}L`" @click="tableDialog($event)">{{tableDepartment[row+'L']}}</div>
           <!--右-->
           <div class="seat-row">
             <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-r-' + s)}" v-for="s in layout['large-seats']"
@@ -322,11 +322,11 @@
       <h2>Login</h2>
       <div class="login">
         <div class="form-item">
-          <label for="username">username</label>
+          <label for="username" style="display: block;">username</label>
           <input id="username" autocomplete="off" type="text" v-model="username">
         </div>
         <div class="form-item">
-          <label for="password">password</label>
+          <label for="password" style="display: block;">password</label>
           <input id="password" autocomplete="off" type="password" v-model="password">
         </div>
         <div class="form-item">
@@ -337,15 +337,24 @@
 
     <!-- ダイアログ -->
     <div v-if="showDialog" class="dialog">
-      <input type="text" v-model="tableNameText">
-      <button @click="changeTableName">変更</button>
-      <button @click="showDialog = false">閉じる</button>
+      <div>
+        <label>テーブル名を変更できます。</label>
+        <input type="text" v-model="tableNameText1" placeholder="1行目">
+      </div>
+      <div>
+        <input type="text" v-model="tableNameText2" placeholder="2行目(省略可)">
+      </div>
+      <div>
+        <button class="btn btn-primary btn-lg" style="margin: 5px" @click="changeTableName">変更</button>
+        <button class="btn btn-primary btn-lg" style="margin: 5px" @click="resetDialog">閉じる</button>
+      </div>
     </div>
 
     <h4 style="padding-top: 20px">
-      ご意見・ご感想・ご要望・ソースレビューは下記リンクよりお願いいたします。
+      ご意見・ご感想・ご要望・バグレポート・ソースレビューは下記リンクよりお願いいたします。
     </h4>
-    <a href="https://forms.gle/Wm25VHszoaMmLXKS7" target="_blank">ここをクリック</a>
+    <a href="https://forms.gle/Wm25VHszoaMmLXKS7" target="_blank"
+      style="font-size: x-large;font-weight: bold;">ここをクリック</a>
   </div>
 
   <script>
@@ -395,7 +404,8 @@
           token: null,
           //テーブル名変更ダイアログ
           showDialog: false,
-          tableNameText: "",
+          tableNameText1: "",
+          tableNameText2: "",
           selectedTableId: "",
           showTooltip: false
         };
@@ -490,13 +500,45 @@
         //[イベント]テーブルクリック
         tableDialog(event) {
           this.selectedTableId = event.target.id;
-          this.tableNameText = this.tableDepartment[this.selectedTableId];
+          const tableNameFull = this.tableDepartment[this.selectedTableId];
+          const splitString = (str) => {
+            const index = str.indexOf('\n');
+
+            if (index === -1) {
+              return [str]; // \n が含まれていない場合
+            }
+
+            return [str.substring(0, index), str.substring(index + 1)];
+          }
+
+          const [before, after = ""] = splitString(tableNameFull);
+
+          this.tableNameText1 = before;
+          this.tableNameText2 = after;
           this.showDialog = true;
         },
         //[イベント]テーブル名変更ボタンクリック
         changeTableName() {
-          this.tableDepartment[this.selectedTableId] = this.tableNameText;
-          this.showDialog = false
+          if(this.tableNameText1 === ""){
+            this.resetDialog();
+            return;
+          }
+          else if (this.tableNameText2 === "") {
+            this.tableDepartment[this.selectedTableId] = this.tableNameText1;
+          } else {
+            this.tableDepartment[this.selectedTableId] = this.tableNameText1 + '\n' + this.tableNameText2;
+          }
+
+          //初期化
+          this.resetDialog();
+        },
+        resetDialog() {
+          //初期化
+          this.tableNameText1 = "";
+          this.tableNameText2 = "";
+
+          this.selectedTableId = "";
+          this.showDialog = false;
         },
         //[イベント]リセットボタン押下
         resetAssign() {
@@ -783,12 +825,12 @@
             (emp) => emp.emp_code === emp_code
           );
           // オブジェクトが見つかればその（氏名\n役職）を返す、見つからなければundefinedを返す
-          return employee ? employee.last_name + ' ' + employee.first_name + '\n' + employee.position + '\n' + employee.department : undefined;
+          return employee ? employee.last_name_yomi + ' ' + employee.first_name_yomi + '\n' + employee.last_name + ' ' + employee.first_name + '\n' + employee.position + '\n' + employee.department : undefined;
         },
-        resetSearchCondition(){
-          this.keyword= ""; // 社員検索用キーワード
-          this.selectedDepartment= ""; // 部署プルダウン選択値
-          this.selectedPosition= ""; // 役職プルダウン選択値
+        resetSearchCondition() {
+          this.keyword = ""; // 社員検索用キーワード
+          this.selectedDepartment = ""; // 部署プルダウン選択値
+          this.selectedPosition = ""; // 役職プルダウン選択値
         }
       },
       created() {
