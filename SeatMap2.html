@@ -224,7 +224,7 @@
             </div>
           </div>
           <!--小テーブル-->
-          <div class="tableSmall" :id="`${row}S`" @click="tableDialog($event)">{{tableDepartment[row+'S']}}</div>
+          <div class="tableSmall" :id="`${row}S`" @click="tableDialog($event)">{{tableName[row+'S']}}</div>
           <!--右-->
           <div class="seat-row">
             <div class="seat" :class="{occupied: isOccupied(row + '-seat-s-r-' + s)}" v-for="s in layout['small-seats']"
@@ -247,7 +247,7 @@
             </div>
           </div>
           <!--大テーブル-->
-          <div class="tableLarge" :id="`${row}L`" @click="tableDialog($event)">{{tableDepartment[row+'L']}}</div>
+          <div class="tableLarge" :id="`${row}L`" @click="tableDialog($event)">{{tableName[row+'L']}}</div>
           <!--右-->
           <div class="seat-row">
             <div class="seat" :class="{occupied: isOccupied(row + '-seat-l-r-' + s)}" v-for="s in layout['large-seats']"
@@ -372,7 +372,7 @@
           employees: {
             // user2: { emp_code: '0562', last_name: '山下', first_name:'洋輔' }
           },
-          tableDepartment: {
+          tableName: {
             // テーブルID : 部署名
             //"hrS": "管理部",
             "1S": "システム開発課",
@@ -500,7 +500,7 @@
         //[イベント]テーブルクリック
         tableDialog(event) {
           this.selectedTableId = event.target.id;
-          const tableNameFull = this.tableDepartment[this.selectedTableId];
+          const tableNameFull = this.tableName[this.selectedTableId];
           const splitString = (str) => {
             const index = str.indexOf('\n');
 
@@ -524,9 +524,9 @@
             return;
           }
           else if (this.tableNameText2 === "") {
-            this.tableDepartment[this.selectedTableId] = this.tableNameText1;
+            this.tableName[this.selectedTableId] = this.tableNameText1;
           } else {
-            this.tableDepartment[this.selectedTableId] = this.tableNameText1 + '\n' + this.tableNameText2;
+            this.tableName[this.selectedTableId] = this.tableNameText1 + '\n' + this.tableNameText2;
           }
 
           //初期化
@@ -542,7 +542,7 @@
         },
         //[イベント]リセットボタン押下
         resetAssign() {
-          if (!confirm("リセットして良い？")) return;
+          if (!confirm("配置をリセットしてもよろしいですか？")) return;
           for (let key in this.occupiedSeats) {
             this.unassignSeat(key);
           }
@@ -556,7 +556,7 @@
         },
         //[イベント]ランダムボタン押下
         randomAssign() {
-          if (!confirm("ランダムに配置して良い？")) return;
+          if (!confirm("ランダムに配置しますか？")) return;
 
           // すべての割り当てをクリア
           this.occupiedSeats = {};
@@ -626,7 +626,7 @@
         },
         //[イベント]Axiosボタン押下　SmartHRから取得
         async axiosTest() {
-          const accessToken = "shr_5280_7KbAbmxYqMGE3nkMxu4MKaHtxDh7JiHC"; // SmartHRのアクセストークン
+          const accessToken = "dummy"; // SmartHRのアクセストークン
           // 取得した社員リスト格納用
           let emp100 = [];
           let emp200 = [];
@@ -669,6 +669,7 @@
 
           //合体
           const empAll = emp100.concat(emp200);
+          console.log(empAll);
           this.employees = Object.assign({}, empAll); //配列をオブジェクトに変換してemployeesに格納
         },
         //[イベント]Axios2ボタン押下 ユーザー登録
@@ -696,7 +697,7 @@
         //[イベント]Axios3ボタン押下 マッピングをDBに保存する
         async axiosTest3() {
           if (this.token === null) {
-            return alert('まずログインしてくれや')
+            return confirm('保存機能実行にはログインが必要です')
           }
           const obj = this.occupiedSeats
           let result = Object.entries(obj).map(([seatId, emp_code]) => {
@@ -715,7 +716,7 @@
               },
             });
             console.log(response.data);
-            alert("保存完了");
+            confirm("保存完了");
           } catch (error) {
             console.error("Error:", error);
           }
